@@ -37,7 +37,7 @@ class _CoTaskHome extends State<CoTaskHomePage> {
                 children: <Widget>[
                   // Removed the Expanded and wrapped the Container in a SizedBox to give it a finite height
                   SizedBox(
-                    height: 150,
+                    height: 100,
                     // Adjust this height to fit your design
                     child: Container(
                       decoration: const BoxDecoration(
@@ -55,7 +55,7 @@ class _CoTaskHome extends State<CoTaskHomePage> {
                         'Cotask',
                         style: TextStyle(
                           color: Color.fromARGB(255, 230, 100, 115),
-                          fontSize: 25,
+                          fontSize: 30,
                           fontFamily: 'Quicksand',
                           fontWeight: FontWeight.w700,
                           height: 0,
@@ -86,9 +86,56 @@ class _CoTaskHome extends State<CoTaskHomePage> {
 
               //CustomPainter
               // Adding the CustomPaint below the header
-              Container(
-                height: 300,
-                child: BarChartWithAvatars(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        'Great work',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 14,
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w700,
+                          height: 0,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Text(
+                        'Doing Good',
+                        style: TextStyle(
+                          color: Colors.purple,
+                          fontSize: 14,
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w700,
+                          height: 0,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Text(
+                        'Time to Gear up',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 14,
+                          fontFamily: 'Quicksand',
+                          fontWeight: FontWeight.w700,
+                          height: 0,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    width: 280,
+                    height: 300,
+                    child: BarChartWithAvatars(),
+                  ),
+                ],
               ),
 
               //new alert

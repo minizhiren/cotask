@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cotask/providers/global_var_provider.dart';
-
+import 'package:cotask/daily_task.dart';
 import 'package:cotask/home.dart';
+import 'package:cotask/calendar_task_page.dart';
 
 class NavigationBarPage extends StatefulWidget {
   final bool showOrderConfirmationPage;
@@ -69,8 +70,8 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
     List<Widget> stackchildren = [
       //home
       const CoTaskHomePage(),
-      const CoTaskHomePage(),
-      const CoTaskHomePage(),
+      const DailyTaskPage(),
+      CalendarTaskPage(),
       const CoTaskHomePage(),
     ];
 

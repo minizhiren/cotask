@@ -1,7 +1,9 @@
+import 'package:cotask/home.dart';
 import 'package:flutter/material.dart';
 import 'package:cotask/navigation_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:cotask/providers/global_var_provider.dart';
+import 'package:cotask/daily_task.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,7 +29,11 @@ class MyApp extends StatelessWidget {
               primaryColor: Color.fromARGB(255, 255, 255, 255)),
           // ignore: prefer_const_constructors
           home: [
-            const NavigationBarPage(), // 0
+            // change the index to text/debug single page
+            // all pages should be WIRED by NavigationBarPage
+            const NavigationBarPage(), //
+            const CoTaskHomePage(), //1
+            const DailyTaskPage(), //2
           ][0]),
     );
   }
