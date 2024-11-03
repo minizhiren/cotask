@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'providers/task_provider.dart';
+import 'package:cotask/custom_widgets/task.dart';
 
 class DailyTaskPage extends StatefulWidget {
   const DailyTaskPage({super.key});
@@ -16,17 +17,9 @@ class _DailyTaskPage extends State<DailyTaskPage> {
   int currentIndexPage = 0;
 
   // 任务移除方法
-  void onTaskRemoved(TaskItem task, String columnName) {
+  void onTaskRemoved(Task task, String columnName) {
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
     taskProvider.removeTask(task, columnName);
-  }
-
-  // 添加任务的方法
-  void addNewTask() {
-    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-    taskProvider.addTask(
-        TaskItem('New Task', DateTime.now().millisecondsSinceEpoch),
-        'Unassigned Task');
   }
 
   @override
@@ -112,12 +105,6 @@ class _DailyTaskPage extends State<DailyTaskPage> {
               ),
               const SizedBox(height: 20),
               // 添加按钮到 ListView 的底部
-              Center(
-                child: ElevatedButton(
-                  onPressed: addNewTask,
-                  child: Text('Add New Task'),
-                ),
-              ),
             ],
           ),
         ],

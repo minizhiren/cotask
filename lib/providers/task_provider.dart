@@ -1,36 +1,76 @@
 import 'package:flutter/material.dart';
-
-class TaskItem {
-  final String name;
-  final int id;
-
-  TaskItem(this.name, this.id);
-}
+import 'package:cotask/custom_widgets/task.dart';
 
 class TaskProvider with ChangeNotifier {
-  // 每个列的任务列表，列名作为键
-  Map<String, List<TaskItem>> taskColumns = {
+  // 使用 Map 存储任务列表，键为列名，值为 Task 对象的列表
+  Map<String, List<Task>> taskColumns = {
     'Unassigned Task': [
-      TaskItem('Task 1', 1),
+      Task(
+        id: 1,
+        name: 'Task 1',
+        startDate: DateTime.now(),
+        endDate: DateTime.now().add(Duration(days: 1)),
+        isRecurring: false,
+        selectedDays: {'Mon', 'Wed', 'Fri'},
+        isDeletable: true,
+      ),
     ],
     'Me': [
-      TaskItem('Task 4', 4),
-      TaskItem('Task 5', 5),
+      Task(
+        id: 4,
+        name: 'Task 4',
+        startDate: DateTime.now(),
+        endDate: DateTime.now().add(Duration(days: 3)),
+        isRecurring: true,
+        selectedDays: {'Mon', 'Wed', 'Fri'},
+        isDeletable: true,
+      ),
+      Task(
+        id: 5,
+        name: 'Task 5',
+        startDate: DateTime.now(),
+        endDate: DateTime.now().add(Duration(days: 5)),
+        isRecurring: false,
+        selectedDays: {'Mon', 'Wed', 'Fri'},
+        isDeletable: true,
+      ),
     ],
     'Lucas': [
-      TaskItem('Task 6', 6),
+      Task(
+        id: 6,
+        name: 'Task 6',
+        startDate: DateTime.now(),
+        endDate: DateTime.now().add(Duration(days: 7)),
+        isRecurring: false,
+        selectedDays: {'Mon', 'Wed', 'Fri'},
+        isDeletable: true,
+      ),
     ],
   };
 
-  // 添加任务到指定的列
-  void addTask(TaskItem task, String column) {
+  // 添加任务到指定列
+  void addTask(Task task, String column) {
+    taskColumns.putIfAbsent(column, () => []);
     taskColumns[column]?.add(task);
     notifyListeners();
   }
 
-  // 从指定的列中移除任务
-  void removeTask(TaskItem task, String column) {
-    taskColumns[column]?.remove(task);
-    notifyListeners();
+  // 从指定列移除任务
+  void removeTask(Task task, String column) {
+    if (task.isDeletable && (taskColumns[column]?.remove(task) ?? false)) {
+      notifyListeners();
+    }
+  }
+
+  // 更新任务信息
+  void updateTask(Task updatedTask, String column) {
+    final taskList = taskColumns[column];
+    if (taskList != null) {
+      final index = taskList.indexWhere((task) => task.id == updatedTask.id);
+      if (index != -1) {
+        taskList[index] = updatedTask;
+        notifyListeners();
+      }
+    }
   }
 }

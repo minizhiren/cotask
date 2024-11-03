@@ -1,9 +1,9 @@
-import 'package:cotask/dashboard.dart';
+import 'package:cotask/dashboard_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cotask/navigation_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:cotask/providers/global_var_provider.dart';
-import 'package:cotask/daily_task.dart';
+import 'package:cotask/daily_task_page.dart';
 import 'package:cotask/providers/task_provider.dart';
 
 void main() {

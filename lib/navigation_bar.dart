@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:cotask/providers/global_var_provider.dart';
-import 'package:cotask/daily_task.dart';
-import 'package:cotask/dashboard.dart';
+import 'package:cotask/daily_task_page.dart';
+import 'package:cotask/dashboard_page.dart';
 import 'package:cotask/calendar_task_page.dart';
+import 'package:cotask/create_task_page.dart';
 
 class NavigationBarPage extends StatefulWidget {
   final bool showOrderConfirmationPage;
@@ -73,7 +74,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
       //home
       const DailyTaskPage(),
       const DashBoardPage(),
-      const DashBoardPage(),
+      const CreateTaskPage(),
       CalendarTaskPage(),
       const DashBoardPage(),
     ];

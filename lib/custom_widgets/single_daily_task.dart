@@ -3,6 +3,7 @@ import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:cotask/providers/task_provider.dart';
+import 'package:cotask/custom_widgets/task.dart';
 
 class SingleDailyTask extends StatelessWidget {
   @override
@@ -13,7 +14,7 @@ class SingleDailyTask extends StatelessWidget {
         List<DragAndDropList> lists =
             taskProvider.taskColumns.entries.map((entry) {
           String listName = entry.key;
-          List<TaskItem> tasks = entry.value;
+          List<Task> tasks = entry.value;
           return DragAndDropList(
             header: Padding(
               padding: EdgeInsets.all(10.0),
@@ -28,7 +29,11 @@ class SingleDailyTask extends StatelessWidget {
             ),
             children: tasks.map((task) {
               return DragAndDropItem(
-                child: TaskContainer(taskName: task.name, listName: listName),
+                child: TaskContainer(
+                  task: task,
+                  listName: listName,
+                  onTaskRemoved: () => taskProvider.removeTask(task, listName),
+                ),
               );
             }).toList(),
           );
@@ -42,14 +47,14 @@ class SingleDailyTask extends StatelessWidget {
                 taskProvider.taskColumns.keys.elementAt(oldListIndex);
             String targetColumn =
                 taskProvider.taskColumns.keys.elementAt(newListIndex);
-            TaskItem movedTask =
+            Task movedTask =
                 taskProvider.taskColumns[sourceColumn]![oldItemIndex];
 
             taskProvider.removeTask(movedTask, sourceColumn);
             taskProvider.addTask(movedTask, targetColumn);
           },
           onListReorder: (oldListIndex, newListIndex) {
-            // 可选：处理列表的重新排序逻辑
+            // 如果需要，可以在这里处理列表重新排序的逻辑
           },
           listDecoration: BoxDecoration(
             color: Colors.white,
@@ -68,7 +73,7 @@ class SingleDailyTask extends StatelessWidget {
             color: Colors.grey[200],
           ),
           itemDragOnLongPress: false,
-          listDragOnLongPress: true,
+          listDragOnLongPress: true, // 禁用列表的拖拽操作
         );
       },
     );
@@ -76,10 +81,14 @@ class SingleDailyTask extends StatelessWidget {
 }
 
 class TaskContainer extends StatelessWidget {
-  final String taskName;
+  final Task task;
   final String listName;
+  final VoidCallback onTaskRemoved;
 
-  TaskContainer({required this.taskName, required this.listName});
+  TaskContainer(
+      {required this.task,
+      required this.listName,
+      required this.onTaskRemoved});
 
   @override
   Widget build(BuildContext context) {
@@ -101,21 +110,24 @@ class TaskContainer extends StatelessWidget {
             child: SvgPicture.asset('assets/drag_handle.svg'),
           ),
           SizedBox(width: 10),
-          SizedBox(
-            width: 230,
+          Expanded(
             child: Text(
-              taskName,
+              task.name,
               style: TextStyle(color: Colors.black87, fontSize: 18),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           SizedBox(
             width: 30,
-            child: listName != 'Unassigned Task'
-                ? SvgPicture.asset(
-                    'assets/check_circle.svg',
-                    color: Color.fromARGB(255, 115, 202, 115),
+            child: listName != 'Unassigned Task' && !task.isCompleted
+                ? GestureDetector(
+                    onTap: onTaskRemoved,
+                    child: SvgPicture.asset(
+                      'assets/check_circle.svg',
+                      color: Color.fromARGB(255, 115, 202, 115),
+                    ),
                   )
-                : SizedBox.shrink(), // 当不显示图标时返回空的SizedBox
+                : SizedBox.shrink(),
           ),
           SizedBox(width: 10),
           SvgPicture.asset('assets/three_dot.svg'),
