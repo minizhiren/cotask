@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:cotask/custom_widgets/bar_painter.dart';
 import 'package:cotask/custom_widgets/single_daily_task.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'providers/task_provider.dart';
 
 class DailyTaskPage extends StatefulWidget {
   const DailyTaskPage({super.key});
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
   @override
   State<DailyTaskPage> createState() => _DailyTaskPage();
 }
@@ -20,8 +15,24 @@ class DailyTaskPage extends StatefulWidget {
 class _DailyTaskPage extends State<DailyTaskPage> {
   int currentIndexPage = 0;
 
+  // 任务移除方法
+  void onTaskRemoved(TaskItem task, String columnName) {
+    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+    taskProvider.removeTask(task, columnName);
+  }
+
+  // 添加任务的方法
+  void addNewTask() {
+    final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+    taskProvider.addTask(
+        TaskItem('New Task', DateTime.now().millisecondsSinceEpoch),
+        'Unassigned Task');
+  }
+
   @override
   Widget build(BuildContext context) {
+    Provider.of<TaskProvider>(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -34,9 +45,10 @@ class _DailyTaskPage extends State<DailyTaskPage> {
             centerTitle: true,
             backgroundColor: Colors.white,
             leading: Container(
-                alignment: Alignment.bottomLeft,
-                margin: const EdgeInsets.only(left: 18, bottom: 8),
-                child: Text('logo')),
+              alignment: Alignment.bottomLeft,
+              margin: const EdgeInsets.only(left: 18, bottom: 18),
+              child: SvgPicture.asset('assets/burgur.svg'),
+            ),
             title: const Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -69,7 +81,7 @@ class _DailyTaskPage extends State<DailyTaskPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Date:',
+                      ' ',
                       style: TextStyle(
                         color: Colors.blue,
                         fontSize: 18,
@@ -79,8 +91,7 @@ class _DailyTaskPage extends State<DailyTaskPage> {
                       ),
                     ),
                     Text(
-                      DateFormat('yyyy-MM-dd')
-                          .format(DateTime.now()), // current date
+                      DateFormat('yyyy-MM-dd').format(DateTime.now()),
                       style: const TextStyle(
                         color: Color.fromARGB(255, 204, 128, 128),
                         fontSize: 18,
@@ -95,22 +106,17 @@ class _DailyTaskPage extends State<DailyTaskPage> {
               const SizedBox(
                 height: 25,
               ),
-              SingleDailyTask(
-                name: 'ME',
-                tasks: const [
-                  'Clean the dishes',
-                  'Buy Groceries',
-                  'Buy Groceries',
-                  'Buy Groceries'
-                ],
+              Container(
+                height: 800,
+                child: SingleDailyTask(),
               ),
-              SingleDailyTask(
-                name: 'Lucas',
-                tasks: const [],
-              ),
-              SingleDailyTask(
-                name: 'Five',
-                tasks: const ['Walk dog'],
+              const SizedBox(height: 20),
+              // 添加按钮到 ListView 的底部
+              Center(
+                child: ElevatedButton(
+                  onPressed: addNewTask,
+                  child: Text('Add New Task'),
+                ),
               ),
             ],
           ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cotask/custom_widgets/bar_painter.dart';
 
-class CoTaskHomePage extends StatefulWidget {
-  const CoTaskHomePage({super.key});
+class DashBoardPage extends StatefulWidget {
+  const DashBoardPage({super.key});
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
@@ -12,10 +12,10 @@ class CoTaskHomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
   @override
-  State<CoTaskHomePage> createState() => _CoTaskHome();
+  State<DashBoardPage> createState() => _DashBoard();
 }
 
-class _CoTaskHome extends State<CoTaskHomePage> {
+class _DashBoard extends State<DashBoardPage> {
   int currentIndexPage = 0;
   final List<Tuple> valuesWithAvatars = [
     Tuple(150.0, './assets/profile_icon.png'),

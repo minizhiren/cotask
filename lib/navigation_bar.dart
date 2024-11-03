@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:cotask/providers/global_var_provider.dart';
 import 'package:cotask/daily_task.dart';
-import 'package:cotask/home.dart';
+import 'package:cotask/dashboard.dart';
 import 'package:cotask/calendar_task_page.dart';
 
 class NavigationBarPage extends StatefulWidget {
@@ -41,10 +42,11 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   }
 
   final List<String> _iconPaths = [
-    "./assets/home_icon.png",
-    "./assets/home_icon.png",
-    "./assets/home_icon.png",
-    "./assets/profile_icon.png",
+    'assets/Navigation_bar/home.svg',
+    'assets/Navigation_bar/file_dollar.svg',
+    'assets/Navigation_bar/create.svg',
+    'assets/Navigation_bar/calendar.svg',
+    'assets/Navigation_bar/dashboard.svg',
   ];
 
   @override
@@ -69,10 +71,11 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
 
     List<Widget> stackchildren = [
       //home
-      const CoTaskHomePage(),
       const DailyTaskPage(),
+      const DashBoardPage(),
+      const DashBoardPage(),
       CalendarTaskPage(),
-      const CoTaskHomePage(),
+      const DashBoardPage(),
     ];
 
     return Scaffold(
@@ -92,8 +95,13 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
             return NavigationDestination(
               icon: Padding(
                 padding: const EdgeInsets.only(top: 15.0),
-                child: Image.asset(
+                child: SvgPicture.asset(
                   _iconPaths[index],
+                  width: _showOrderConfirmationPage
+                      ? 32
+                      : currentIndex == index
+                          ? 40
+                          : 32,
                   color: _showOrderConfirmationPage
                       ? const Color(0xFFA9A9A9)
                       : currentIndex == index
