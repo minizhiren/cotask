@@ -10,7 +10,7 @@ class SingleDailyTask extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<TaskProvider>(
       builder: (context, taskProvider, child) {
-        // 将 taskColumns 转换为 DragAndDropList
+        // wdiget from web, Drag and Drop List
         List<DragAndDropList> lists =
             taskProvider.taskColumns.entries.map((entry) {
           String listName = entry.key;
@@ -54,7 +54,7 @@ class SingleDailyTask extends StatelessWidget {
             taskProvider.addTask(movedTask, targetColumn);
           },
           onListReorder: (oldListIndex, newListIndex) {
-            // 如果需要，可以在这里处理列表重新排序的逻辑
+            // if needed, it will handle list reorder
           },
           listDecoration: BoxDecoration(
             color: Colors.white,
@@ -73,7 +73,8 @@ class SingleDailyTask extends StatelessWidget {
             color: Colors.grey[200],
           ),
           itemDragOnLongPress: false,
-          listDragOnLongPress: true, // 禁用列表的拖拽操作
+          listDragOnLongPress:
+              true, // task or list will be graggle iff long press
         );
       },
     );

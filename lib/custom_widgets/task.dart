@@ -10,7 +10,6 @@ class Task {
   final Set<String> selectedDays;
   final bool isCompleted;
   final bool isDeletable;
-
   Task({
     required this.id,
     required this.name,
@@ -19,10 +18,10 @@ class Task {
     this.isRecurring = false,
     this.selectedDays = const {},
     this.isCompleted = false,
-    this.isDeletable = true, // 默认值设置为 true
+    this.isDeletable = true, // for futrue money tag task.
   });
 
-  // 复制并更新方法，用于任务属性的修改
+  // edit task attribute
   Task copyWith({
     int? id,
     String? name,
@@ -90,13 +89,14 @@ class TaskContainer extends StatelessWidget {
                     listName != 'Unassigned Task' &&
                     !task.isCompleted
                 ? GestureDetector(
-                    onTap: onTaskRemoved, // 点击图标时触发删除回调
+                    onTap: onTaskRemoved, // click -> call remove function
                     child: SvgPicture.asset(
                       'assets/check_circle.svg',
                       color: Color.fromARGB(255, 115, 202, 115),
                     ),
                   )
-                : SizedBox.shrink(), // 如果不能删除则隐藏删除按钮
+                : SizedBox
+                    .shrink(), // hide circle check, if taks is undeletable
           ),
           SizedBox(width: 10),
           SvgPicture.asset('assets/three_dot.svg'),

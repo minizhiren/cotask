@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cotask/custom_widgets/task.dart';
 
 class TaskProvider with ChangeNotifier {
-  // 使用 Map 存储任务列表，键为列名，值为 Task 对象的列表
   Map<String, List<Task>> taskColumns = {
     'Unassigned Task': [
       Task(
@@ -48,21 +47,19 @@ class TaskProvider with ChangeNotifier {
     ],
   };
 
-  // 添加任务到指定列
+  //  default add to unassign taks
   void addTask(Task task, String column) {
     taskColumns.putIfAbsent(column, () => []);
     taskColumns[column]?.add(task);
     notifyListeners();
   }
 
-  // 从指定列移除任务
   void removeTask(Task task, String column) {
     if (task.isDeletable && (taskColumns[column]?.remove(task) ?? false)) {
       notifyListeners();
     }
   }
 
-  // 更新任务信息
   void updateTask(Task updatedTask, String column) {
     final taskList = taskColumns[column];
     if (taskList != null) {
