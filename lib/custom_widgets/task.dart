@@ -1,5 +1,7 @@
+// task.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cotask/edit_task_page.dart';
 
 class Task {
   final int id;
@@ -10,6 +12,8 @@ class Task {
   final Set<String> selectedDays;
   final bool isCompleted;
   final bool isDeletable;
+  final int credit;
+
   Task({
     required this.id,
     required this.name,
@@ -18,7 +22,8 @@ class Task {
     this.isRecurring = false,
     this.selectedDays = const {},
     this.isCompleted = false,
-    this.isDeletable = true, // for futrue money tag task.
+    this.isDeletable = true,
+    this.credit = 60,
   });
 
   // edit task attribute
@@ -31,6 +36,7 @@ class Task {
     Set<String>? selectedDays,
     bool? isCompleted,
     bool? isDeletable,
+    int? credit,
   }) {
     return Task(
       id: id ?? this.id,
@@ -41,6 +47,7 @@ class Task {
       selectedDays: selectedDays ?? this.selectedDays,
       isCompleted: isCompleted ?? this.isCompleted,
       isDeletable: isDeletable ?? this.isDeletable,
+      credit: credit ?? this.credit,
     );
   }
 }
@@ -89,17 +96,29 @@ class TaskContainer extends StatelessWidget {
                     listName != 'Unassigned Task' &&
                     !task.isCompleted
                 ? GestureDetector(
-                    onTap: onTaskRemoved, // click -> call remove function
+                    onTap: onTaskRemoved,
                     child: SvgPicture.asset(
                       'assets/check_circle.svg',
                       color: Color.fromARGB(255, 115, 202, 115),
                     ),
                   )
-                : SizedBox
-                    .shrink(), // hide circle check, if taks is undeletable
+                : SizedBox.shrink(),
           ),
           SizedBox(width: 10),
-          SvgPicture.asset('assets/three_dot.svg'),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditTaskPage(
+                    task: task,
+                    listName: listName,
+                  ),
+                ),
+              );
+            },
+            child: SvgPicture.asset('assets/three_dot.svg'),
+          ),
         ],
       ),
     );
