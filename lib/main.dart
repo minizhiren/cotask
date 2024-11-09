@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => TaskProvider()),
+        ChangeNotifierProvider(create: (_) => DateProvider()),
         // add more providers here
       ],
       child: MaterialApp(

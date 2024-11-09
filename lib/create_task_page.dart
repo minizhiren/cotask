@@ -14,8 +14,6 @@ class CreateTaskPage extends StatefulWidget {
 }
 
 class _CreateTaskPage extends State<CreateTaskPage> {
-  bool isRecurring = false;
-
   final daysOfWeek = [
     'Mon',
     'Tue',
@@ -40,21 +38,28 @@ class _CreateTaskPage extends State<CreateTaskPage> {
 
     // Creating a new task with all parameters
     final newTask = Task(
-      id: DateTime.now().millisecondsSinceEpoch,
-      name: taskNameController.text.isNotEmpty
-          ? taskNameController.text
-          : "New Task",
-      startDate: startDate,
-      endDate: endDate,
-      isRecurring: isRecurring,
-      selectedDays: isRecurring
-          ? selectedDays
-          : <String>{}, // Using selected days for recurring events
-      isDeletable: true,
-    );
+        id: DateTime.now().millisecondsSinceEpoch,
+        name: taskNameController.text.isNotEmpty
+            ? taskNameController.text
+            : "New Task",
+        startDate: startDate,
+        endDate: endDate,
+        selectedDays: <String>{}, // Using selected days for recurring events
+        listName: 'Unassigned Task',
+        credit: 60);
+
+    // Printing task details for debugging
+    print('Task Created:');
+    print('ID: ${newTask.id}');
+    print('Name: ${newTask.name}');
+    print('Start Date: ${DateFormat('yyyy-MM-dd').format(newTask.startDate)}');
+    print('End Date: ${DateFormat('yyyy-MM-dd').format(newTask.endDate)}');
+    print('Selected Days: ${newTask.selectedDays}');
+    print('List Name: ${newTask.listName}');
+    print('---');
 
     // Adding the task to the "Unassigned Task" column
-    taskProvider.addTask(newTask, 'Unassigned Task');
+    taskProvider.addTask(newTask);
   }
 
   // Function to select date range
@@ -159,20 +164,6 @@ class _CreateTaskPage extends State<CreateTaskPage> {
                           onPressed: () => _selectDateRange(context),
                         ),
                         Text("${DateFormat('MM/dd').format(endDate)}"),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Checkbox(
-                          value: isRecurring,
-                          onChanged: (value) {
-                            setState(() {
-                              isRecurring = value!;
-                            });
-                          },
-                        ),
-                        Text("Recurring event"),
                       ],
                     ),
                     SizedBox(height: 10),

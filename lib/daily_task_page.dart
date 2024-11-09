@@ -1,9 +1,10 @@
+import 'package:cotask/providers/global_var_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:cotask/custom_widgets/single_daily_task.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import 'providers/task_provider.dart';
+import 'package:cotask/custom_widgets/single_daily_task.dart';
 import 'package:cotask/custom_widgets/task.dart';
 
 class DailyTaskPage extends StatefulWidget {
@@ -19,12 +20,47 @@ class _DailyTaskPage extends State<DailyTaskPage> {
   // 任务移除方法
   void onTaskRemoved(Task task, String columnName) {
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-    taskProvider.removeTask(task, columnName);
+    taskProvider.removeTask(task);
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final selectedDate =
+        Provider.of<DateProvider>(context, listen: false).selectedDate;
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate, // 设置为当前选中的日期
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2101),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: const Color(0xFFF66372), // 设置主色调
+              onPrimary: Colors.white, // 选中日期的文字颜色
+              onSurface: Colors.black, // 普通日期的文字颜色
+            ),
+            dialogBackgroundColor: Colors.white,
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFF66372), // 设置确定按钮颜色
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != selectedDate) {
+      Provider.of<DateProvider>(context, listen: false)
+          .updateSelectedDate(picked);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<TaskProvider>(context);
+    final selectedDate = Provider.of<DateProvider>(context).selectedDate;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -69,42 +105,50 @@ class _DailyTaskPage extends State<DailyTaskPage> {
             physics: const BouncingScrollPhysics(),
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+                padding: const EdgeInsets.only(left: 10, right: 20, top: 20),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const Text(
-                      ' ',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 18,
-                        fontFamily: 'Quicksand',
-                        fontWeight: FontWeight.w700,
-                        height: 0,
-                      ),
-                    ),
-                    Text(
-                      DateFormat('yyyy-MM-dd').format(DateTime.now()),
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 204, 128, 128),
-                        fontSize: 18,
-                        fontFamily: 'Quicksand',
-                        fontWeight: FontWeight.w700,
-                        height: 0,
+                    GestureDetector(
+                      onTap: () => _selectDate(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Color(0xFFF66372),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              DateFormat('yyyy-MM-dd').format(selectedDate),
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 245, 136, 147),
+                                fontSize: 18,
+                                fontFamily: 'Quicksand',
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const Icon(
+                              Icons.calendar_today,
+                              color: Color.fromARGB(255, 245, 136, 147),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 25,
-              ),
+              const SizedBox(height: 25),
               Container(
                 height: 800,
                 child: SingleDailyTask(),
               ),
               const SizedBox(height: 20),
-              // 添加按钮到 ListView 的底部
             ],
           ),
         ],

@@ -17,7 +17,6 @@ class EditTaskPage extends StatefulWidget {
 }
 
 class _EditTaskPage extends State<EditTaskPage> {
-  bool isRecurring = false;
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now();
   final Set<String> selectedDays = {};
@@ -39,7 +38,6 @@ class _EditTaskPage extends State<EditTaskPage> {
     taskNameController.text = widget.task.name;
     startDate = widget.task.startDate;
     endDate = widget.task.endDate;
-    isRecurring = widget.task.isRecurring;
     selectedDays.addAll(widget.task.selectedDays);
   }
 
@@ -50,12 +48,11 @@ class _EditTaskPage extends State<EditTaskPage> {
       name: taskNameController.text,
       startDate: startDate,
       endDate: endDate,
-      isRecurring: isRecurring,
       selectedDays: selectedDays,
     );
 
     // Update task in the specific list
-    taskProvider.updateTask(updatedTask, widget.listName);
+    taskProvider.updateTask(updatedTask);
     Navigator.pop(context);
   }
 
@@ -167,75 +164,60 @@ class _EditTaskPage extends State<EditTaskPage> {
                         Text("${DateFormat('MM/dd').format(endDate)}"),
                       ],
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                    Column(
                       children: [
-                        Checkbox(
-                          value: isRecurring,
-                          onChanged: (value) {
-                            setState(() {
-                              isRecurring = value!;
-                            });
-                          },
-                        ),
-                        Text("Recurring event"),
-                      ],
-                    ),
-                    if (isRecurring) // Show day selection only if recurring
-                      Column(
-                        children: [
-                          SizedBox(height: 10),
-                          Wrap(
-                            spacing: 8.0,
-                            children: daysOfWeek.map((day) {
-                              final isSelected = selectedDays.contains(day);
-                              return GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    if (isSelected) {
-                                      selectedDays.remove(day);
-                                    } else {
-                                      selectedDays.add(day);
-                                    }
-                                  });
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 8),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey),
+                        SizedBox(height: 10),
+                        Wrap(
+                          spacing: 8.0,
+                          children: daysOfWeek.map((day) {
+                            final isSelected = selectedDays.contains(day);
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (isSelected) {
+                                    selectedDays.remove(day);
+                                  } else {
+                                    selectedDays.add(day);
+                                  }
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 8),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  color: isSelected
+                                      ? Color.fromARGB(149, 238, 136, 146)
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: Color.fromARGB(
+                                                    150, 250, 125, 137)
+                                                .withOpacity(0.4),
+                                            spreadRadius: 2,
+                                            blurRadius: 6,
+                                            offset: Offset(0, 3),
+                                          ),
+                                        ]
+                                      : [],
+                                ),
+                                child: Text(
+                                  day,
+                                  style: TextStyle(
                                     color: isSelected
-                                        ? Color.fromARGB(149, 238, 136, 146)
-                                        : Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: isSelected
-                                        ? [
-                                            BoxShadow(
-                                              color: Color.fromARGB(
-                                                      150, 250, 125, 137)
-                                                  .withOpacity(0.4),
-                                              spreadRadius: 2,
-                                              blurRadius: 6,
-                                              offset: Offset(0, 3),
-                                            ),
-                                          ]
-                                        : [],
-                                  ),
-                                  child: Text(
-                                    day,
-                                    style: TextStyle(
-                                      color: isSelected
-                                          ? Colors.white
-                                          : Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                        ? Colors.white
+                                        : Colors.black,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
