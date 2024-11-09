@@ -107,7 +107,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                   color: _showOrderConfirmationPage
                       ? const Color(0xFFA9A9A9)
                       : currentIndex == index
-                          ? const Color(0xFFFFC0CB)
+                          ? Color(0xFFF66372)
                           : const Color(0xFFA9A9A9),
                 ),
               ),

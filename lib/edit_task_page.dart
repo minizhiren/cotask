@@ -221,12 +221,31 @@ class _EditTaskPage extends State<EditTaskPage> {
                   ],
                 ),
               ),
-              Center(
-                child: ElevatedButton(
-                  onPressed: editTask,
-                  child: Text('Save Changes'),
-                ),
+              SizedBox(
+                height: 100,
               ),
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                ElevatedButton(
+                    onPressed: editTask,
+                    style: ElevatedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      backgroundColor: const Color(0xFFFA7D8A),
+                    ),
+                    child: const Text(
+                      'Create Task',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontFamily: 'Raleway',
+                        fontWeight: FontWeight.w900,
+                        height: 0,
+                      ),
+                    )),
+                SizedBox(
+                  width: 30,
+                )
+              ]),
             ],
           ),
         ],

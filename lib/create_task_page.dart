@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'providers/task_provider.dart';
@@ -224,12 +225,31 @@ class _CreateTaskPage extends State<CreateTaskPage> {
                   ],
                 ),
               ),
-              Center(
-                child: ElevatedButton(
-                  onPressed: addNewTask,
-                  child: Text('Add New Task'),
-                ),
+              SizedBox(
+                height: 100,
               ),
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                ElevatedButton(
+                    onPressed: addNewTask,
+                    style: ElevatedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      backgroundColor: const Color(0xFFFA7D8A),
+                    ),
+                    child: const Text(
+                      'Create Task',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontFamily: 'Raleway',
+                        fontWeight: FontWeight.w900,
+                        height: 0,
+                      ),
+                    )),
+                SizedBox(
+                  width: 30,
+                )
+              ]),
             ],
           ),
         ],

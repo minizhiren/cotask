@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.cotask"
-    compileSdk 33 // Set explicitly to 33 for Android 13 compatibility
+    compileSdk 34 // Updated to 34 for Android 14 compatibility
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -43,7 +43,7 @@ android {
     defaultConfig {
         applicationId "com.example.cotask"
         minSdkVersion flutter.minSdkVersion
-        targetSdkVersion 33 // Set explicitly to 33 for Android 13 compatibility
+        targetSdkVersion 34 // Updated to 34 for Android 14 compatibility
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

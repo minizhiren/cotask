@@ -12,14 +12,14 @@ class GroceryProvider with ChangeNotifier {
       credit: 60,
       isCompleted: false,
     ),
-    Grocery(
-      id: 2,
-      name: 'Groceries 2',
-      listName: 'Unassigned Task',
-      inputGrocery: {'coke', 'rice', 'food'},
-      credit: 60,
-      isCompleted: false,
-    ),
+    // Grocery(
+    //   id: 2,
+    //   name: 'Groceries 2',
+    //   listName: 'Unassigned Task',
+    //   inputGrocery: {'coke', 'rice', 'food'},
+    //   credit: 60,
+    //   isCompleted: false,
+    // ),
   ];
 
   // Add a grocery list
