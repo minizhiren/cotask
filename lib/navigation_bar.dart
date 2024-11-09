@@ -6,6 +6,7 @@ import 'package:cotask/daily_task_page.dart';
 import 'package:cotask/dashboard_page.dart';
 import 'package:cotask/calendar_task_page.dart';
 import 'package:cotask/create_task_page.dart';
+import 'package:cotask/grocery_list_page.dart';
 
 class NavigationBarPage extends StatefulWidget {
   final bool showOrderConfirmationPage;
@@ -73,7 +74,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
     List<Widget> stackchildren = [
       //home
       const DailyTaskPage(),
-      const DashBoardPage(),
+      GroceryListPage(),
       const CreateTaskPage(),
       CalendarTaskPage(),
       const DashBoardPage(),

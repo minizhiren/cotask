@@ -2,40 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:provider/provider.dart';
 import 'package:cotask/providers/task_provider.dart';
+import 'package:cotask/providers/gorcery_provider.dart';
 import 'package:cotask/providers/global_var_provider.dart';
 import 'package:cotask/custom_widgets/task.dart';
+import 'package:cotask/custom_widgets/grocery.dart';
 
 class SingleDailyTask extends StatelessWidget {
-  // 定义所有列表名称，即使没有任务也会显示这些列表
+  // Define all list names, even if empty, for both tasks and groceries
   final List<String> predefinedListNames = ['Unassigned Task', 'Me', 'Lucas'];
+  final ScrollController _scrollController =
+      ScrollController(); // ScrollController added
 
   @override
   Widget build(BuildContext context) {
-    // 获取当前选定的日期
+    // Get selected date
     final selectedDate = Provider.of<DateProvider>(context).selectedDate;
     final year = selectedDate.year;
     final month = selectedDate.month;
     final day = selectedDate.day;
-    final selectedWeekday = selectedDate.weekday; // 星期几（1=星期一，7=星期日）
+    final selectedWeekday = selectedDate.weekday; // 1=Monday, ..., 7=Sunday
 
-    return Consumer<TaskProvider>(
-      builder: (context, taskProvider, child) {
-        // 初始化分组任务 Map，确保每个预定义的列表都有一个空列表
-        Map<String, List<Task>> groupedTasks = {
+    return Consumer2<TaskProvider, GroceryProvider>(
+      builder: (context, taskProvider, groceryProvider, child) {
+        // Initialize grouped items (tasks and groceries) Map, ensuring each predefined list has an empty list
+        Map<String, List<dynamic>> groupedItems = {
           for (var listName in predefinedListNames) listName: []
         };
 
-        // 根据任务的 `listName` 进行分组
+        // Group tasks by `listName`
         for (var task in taskProvider.tasks) {
           bool isTaskCompleted =
               task.completionStatus[year]?[month]?[day] ?? false;
-
-          // 检查选定日期是否在任务的时间范围内
           bool isWithinDateRange = selectedDate
                   .isAfter(task.startDate.subtract(Duration(days: 1))) &&
               selectedDate.isBefore(task.endDate.add(Duration(days: 1)));
-
-          // 检查任务是否符合选定的星期几
           bool shouldShowTask = task.selectedDays.isEmpty ||
               task.selectedDays.contains({
                 1: 'Mon',
@@ -47,16 +47,22 @@ class SingleDailyTask extends StatelessWidget {
                 7: 'Sun',
               }[selectedWeekday]);
 
-          // 仅显示在日期范围内、未完成且符合星期条件的任务
           if (isWithinDateRange && !isTaskCompleted && shouldShowTask) {
-            groupedTasks[task.listName]?.add(task);
+            groupedItems[task.listName]?.add(task);
           }
         }
 
-        // 构建 DragAndDropList
-        List<DragAndDropList> lists = groupedTasks.entries.map((entry) {
+        // Group groceries by `listName`
+        for (var grocery in groceryProvider.groceryLists) {
+          if (!grocery.isCompleted) {
+            groupedItems[grocery.listName]?.add(grocery);
+          }
+        }
+
+        // Build DragAndDropLists
+        List<DragAndDropList> lists = groupedItems.entries.map((entry) {
           String listName = entry.key;
-          List<Task> tasks = entry.value;
+          List<dynamic> items = entry.value;
 
           return DragAndDropList(
             header: Padding(
@@ -70,42 +76,66 @@ class SingleDailyTask extends StatelessWidget {
                 ),
               ),
             ),
-            children: tasks.isNotEmpty
-                ? tasks.map((task) {
-                    return DragAndDropItem(
-                      child: TaskContainer(
-                        task: task,
-                        onTaskRemoved: () => taskProvider.removeTask(task),
-                      ),
-                    );
-                  }).toList()
+            children: items.isNotEmpty
+                ? items
+                    .map((item) {
+                      if (item is Task) {
+                        return DragAndDropItem(
+                          child: TaskContainer(
+                            task: item,
+                            onTaskRemoved: () => taskProvider.removeTask(item),
+                          ),
+                        );
+                      } else if (item is Grocery) {
+                        return DragAndDropItem(
+                          child: GroceryContainer(
+                            groceryList: item,
+                            onGroceryRemoved: () =>
+                                groceryProvider.removeGroceryList(item),
+                            onCompleted: () {
+                              final updatedItem =
+                                  item.copyWith(isCompleted: !item.isCompleted);
+                              groceryProvider.updateGroceryList(updatedItem);
+                            },
+                          ),
+                        );
+                      }
+                      return null;
+                    })
+                    .whereType<DragAndDropItem>()
+                    .toList()
                 : [
                     DragAndDropItem(
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),
                         child: Center(
                           child: Text(
-                            'No tasks available',
+                            'No items available',
                             style: TextStyle(color: Colors.grey),
                           ),
                         ),
                       ),
                     )
-                  ], // 如果任务列表为空，显示提示信息
+                  ],
           );
         }).toList();
 
         return DragAndDropLists(
           children: lists,
+          scrollController: _scrollController, // Assign the ScrollController
           onItemReorder:
               (oldItemIndex, oldListIndex, newItemIndex, newListIndex) {
             var sourceListName = predefinedListNames[oldListIndex];
             var targetListName = predefinedListNames[newListIndex];
-            var movedTask = groupedTasks[sourceListName]![oldItemIndex];
+            var movedItem = groupedItems[sourceListName]![oldItemIndex];
 
-            // 更新任务的 listName 并在 TaskProvider 中更新任务
-            movedTask = movedTask.copyWith(listName: targetListName);
-            taskProvider.updateTask(movedTask);
+            if (movedItem is Task) {
+              movedItem = movedItem.copyWith(listName: targetListName);
+              taskProvider.updateTask(movedItem);
+            } else if (movedItem is Grocery) {
+              movedItem = movedItem.copyWith(listName: targetListName);
+              groceryProvider.updateGroceryList(movedItem);
+            }
           },
           onListReorder: (oldListIndex, newListIndex) {},
           listDecoration: BoxDecoration(

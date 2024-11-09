@@ -134,20 +134,23 @@ class TaskContainer extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: Row(
+      child: Flex(
+        direction: Axis.horizontal,
         children: [
           SizedBox(
             width: 30,
             child: SvgPicture.asset('assets/drag_handle.svg'),
           ),
-          SizedBox(width: 10),
           Expanded(
-            child: Text(
-              task.name,
-              style: TextStyle(color: Colors.black87, fontSize: 18),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+              flex: 2,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Text(
+                  task.name,
+                  style: TextStyle(color: Colors.black87, fontSize: 18),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              )),
           SizedBox(
             width: 30,
             child: task.listName != 'Unassigned Task' && !isTaskCompleted
