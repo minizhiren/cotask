@@ -10,7 +10,7 @@ import 'package:cotask/providers/global_var_provider.dart';
 class Task {
   final int id;
   final String name;
-  final String listName;
+  final String ownerName;
   final DateTime startDate;
   final DateTime endDate;
   final Set<String> selectedDays;
@@ -20,7 +20,7 @@ class Task {
   Task({
     required this.id,
     required this.name,
-    required this.listName,
+    required this.ownerName,
     required this.startDate,
     required this.endDate,
     required this.selectedDays,
@@ -43,7 +43,7 @@ class Task {
     return Task(
       id: id ?? this.id,
       name: name ?? this.name,
-      listName: listName ?? this.listName,
+      ownerName: listName ?? this.ownerName,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       selectedDays: selectedDays ?? this.selectedDays,
@@ -154,7 +154,7 @@ class TaskContainer extends StatelessWidget {
               )),
           SizedBox(
             width: 30,
-            child: task.listName != 'Unassigned Task' && !isTaskCompleted
+            child: task.ownerName != 'Unassigned Task' && !isTaskCompleted
                 ? GestureDetector(
                     onTap: () {
                       // 点击标记任务为完成
@@ -163,7 +163,7 @@ class TaskContainer extends StatelessWidget {
                         selectedDate,
                         true,
                         Provider.of<TaskProvider>(context, listen: false),
-                        task.listName, // 直接从 task 中获取 listName
+                        task.ownerName, // 直接从 task 中获取 listName
                       );
                     },
                     child: SvgPicture.asset(
@@ -181,7 +181,7 @@ class TaskContainer extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => EditTaskPage(
                     task: task,
-                    listName: task.listName, // 直接从 task 中获取 listName
+                    listName: task.ownerName, // 直接从 task 中获取 listName
                   ),
                 ),
               );

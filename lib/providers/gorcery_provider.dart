@@ -7,7 +7,7 @@ class GroceryProvider with ChangeNotifier {
     Grocery(
       id: 1,
       name: 'Groceries 1',
-      listName: 'Unassigned Task',
+      ownerName: 'Unassigned Task',
       inputGrocery: {'water', 'coke', 'pepsi'},
       credit: 60,
       isCompleted: false,

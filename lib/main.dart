@@ -6,6 +6,7 @@ import 'package:cotask/providers/global_var_provider.dart';
 import 'package:cotask/daily_task_page.dart';
 import 'package:cotask/providers/task_provider.dart';
 import 'package:cotask/providers/gorcery_provider.dart';
+import 'package:cotask/providers/transfer_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DateProvider()),
         ChangeNotifierProvider(create: (_) => GroceryProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => TransferProvider()),
         // add more providers here
       ],
       child: MaterialApp(

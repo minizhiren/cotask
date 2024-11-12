@@ -8,7 +8,7 @@ class TaskProvider with ChangeNotifier {
         name: 'Task 1',
         startDate: DateTime.now(),
         endDate: DateTime.now().add(Duration(days: 45)),
-        listName: 'Unassigned Task',
+        ownerName: 'Unassigned Task',
         selectedDays: {'Mon', 'Wed', 'Fri'},
         credit: 60),
     Task(
@@ -16,7 +16,7 @@ class TaskProvider with ChangeNotifier {
         name: 'Task 4',
         startDate: DateTime.now(),
         endDate: DateTime.now().add(Duration(days: 15)),
-        listName: 'Me',
+        ownerName: 'Me',
         selectedDays: {'Mon', 'Wed', 'Fri'},
         credit: 60),
     Task(
@@ -24,7 +24,7 @@ class TaskProvider with ChangeNotifier {
         name: 'Task 5',
         startDate: DateTime.now(),
         endDate: DateTime.now().add(Duration(days: 15)),
-        listName: 'Me',
+        ownerName: 'Me',
         selectedDays: {'Mon', 'Wed', 'Fri'},
         credit: 60),
     Task(
@@ -32,7 +32,7 @@ class TaskProvider with ChangeNotifier {
         name: 'Task 6',
         startDate: DateTime.now(),
         endDate: DateTime.now().add(Duration(days: 15)),
-        listName: 'Lucas',
+        ownerName: 'Lucas',
         selectedDays: {'Mon', 'Wed', 'Fri'},
         credit: 60),
   ];
@@ -64,7 +64,7 @@ class TaskProvider with ChangeNotifier {
     print("Task $action:");
     print("ID: ${task.id}");
     print("Name: ${task.name}");
-    print("List Name: ${task.listName}");
+    print("List Name: ${task.ownerName}");
     print("Start Date: ${task.startDate}");
     print("End Date: ${task.endDate}");
     print("Selected Days: ${task.selectedDays}");

@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:cotask/providers/gorcery_provider.dart';
 import 'package:cotask/custom_widgets/grocery.dart';
+import 'package:cotask/custom_widgets/custom_textfield.dart';
 
 class EditGroceryPage extends StatefulWidget {
   final Grocery grocery;
@@ -15,10 +16,13 @@ class EditGroceryPage extends StatefulWidget {
 
 class _EditGroceryPageState extends State<EditGroceryPage> {
   final List<TextEditingController> _controllers = [];
+  final TextEditingController _listNameController =
+      TextEditingController(); // Controller for grocery list name
 
   @override
   void initState() {
     super.initState();
+    _listNameController.text = widget.grocery.name; // Set initial list name
     for (var item in widget.grocery.inputGrocery) {
       _controllers.add(TextEditingController(text: item));
     }
@@ -52,6 +56,7 @@ class _EditGroceryPageState extends State<EditGroceryPage> {
     }
 
     final updatedGrocery = widget.grocery.copyWith(
+      name: _listNameController.text, // Update list name
       inputGrocery: updatedInputGrocery,
     );
 
@@ -73,6 +78,7 @@ class _EditGroceryPageState extends State<EditGroceryPage> {
     for (var controller in _controllers) {
       controller.dispose();
     }
+    _listNameController.dispose();
     super.dispose();
   }
 
@@ -125,6 +131,29 @@ class _EditGroceryPageState extends State<EditGroceryPage> {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text(
+                        'List Name :',
+                        style: TextStyle(color: Colors.black87, fontSize: 18),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Expanded(
+                      child: CustomTextField(
+                        text: 'Enter list name',
+                        controller: _listNameController,
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                  ],
+                ),
+                const SizedBox(height: 20),
                 Expanded(
                   child: ListView.builder(
                     itemCount: _controllers.length,

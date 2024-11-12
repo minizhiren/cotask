@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cotask/edit_grocery_list_page.dart';
+import 'package:cotask/upload_bill_page.dart';
 
 class Grocery {
   final int id;
   final String name;
-  final String listName;
+  final String ownerName;
   final int credit;
   final bool isCompleted;
   final Set<String> inputGrocery;
@@ -13,7 +14,7 @@ class Grocery {
   Grocery({
     required this.id,
     required this.name,
-    required this.listName,
+    required this.ownerName,
     required this.credit,
     required this.isCompleted,
     required this.inputGrocery,
@@ -31,7 +32,7 @@ class Grocery {
     return Grocery(
       id: id ?? this.id,
       name: name ?? this.name,
-      listName: listName ?? this.listName,
+      ownerName: listName ?? this.ownerName,
       credit: credit ?? this.credit,
       isCompleted: isCompleted ?? this.isCompleted,
       inputGrocery: inputGrocery ?? this.inputGrocery,
@@ -89,9 +90,18 @@ class GroceryContainer extends StatelessWidget {
           ),
           SizedBox(
             width: 30,
-            child: groceryList.listName != 'Unassigned'
+            child: groceryList.ownerName != 'Unassigned'
                 ? GestureDetector(
-                    onTap: onCompleted,
+                    onTap: () {
+                      // Navigate to EditGroceryPage
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              UploadBillPage(grocery: groceryList),
+                        ),
+                      );
+                    },
                     child: SvgPicture.asset(
                       'assets/check_circle.svg',
                       color: groceryList.isCompleted

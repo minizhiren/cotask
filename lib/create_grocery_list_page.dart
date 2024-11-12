@@ -61,7 +61,7 @@ class _GroceryListPageState extends State<GroceryListPage> {
     final newGrocery = Grocery(
       id: DateTime.now().millisecondsSinceEpoch, // 使用时间戳作为唯一ID
       name: listName, // 将用户输入的名称赋值给name
-      listName: 'Unassigned Task',
+      ownerName: 'Unassigned Task',
       inputGrocery: inputGrocery,
       credit: 60, // 默认信用值
       isCompleted: false,
@@ -148,6 +148,9 @@ class _GroceryListPageState extends State<GroceryListPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                SizedBox(
+                  height: 20,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [

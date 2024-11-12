@@ -64,9 +64,9 @@ class _CalendarTaskPageState extends State<CalendarTaskPage> {
 
             // Assign color based on person assigned to the task
             Color indicatorColor;
-            if (task.listName == 'Me') {
+            if (task.ownerName == 'Me') {
               indicatorColor = Colors.purple;
-            } else if (task.listName == 'Lucas') {
+            } else if (task.ownerName == 'Lucas') {
               indicatorColor = Colors.orange;
             } else {
               indicatorColor = Colors.grey;

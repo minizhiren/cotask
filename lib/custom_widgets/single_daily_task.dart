@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:cotask/providers/task_provider.dart';
 import 'package:cotask/providers/gorcery_provider.dart';
 import 'package:cotask/providers/global_var_provider.dart';
+import 'package:cotask/providers/transfer_provider.dart'; // 新增 TransferProvider
 import 'package:cotask/custom_widgets/task.dart';
 import 'package:cotask/custom_widgets/grocery.dart';
+import 'package:cotask/custom_widgets/transfer.dart'; // 新增 TransferContainer
 
 class SingleDailyTask extends StatelessWidget {
   final List<String> predefinedListNames = ['Unassigned Task', 'Me', 'Lucas'];
@@ -21,13 +23,15 @@ class SingleDailyTask extends StatelessWidget {
     final day = selectedDate.day;
     final selectedWeekday = selectedDate.weekday;
 
-    return Consumer3<TaskProvider, GroceryProvider, NotificationProvider>(
-      builder: (context, taskProvider, groceryProvider, notificationProvider,
-          child) {
+    return Consumer4<TaskProvider, GroceryProvider, TransferProvider,
+        NotificationProvider>(
+      builder: (context, taskProvider, groceryProvider, transferProvider,
+          notificationProvider, child) {
         Map<String, List<dynamic>> groupedItems = {
           for (var listName in predefinedListNames) listName: []
         };
 
+        // 处理 Task 项目
         for (var task in taskProvider.tasks) {
           bool isTaskCompleted =
               task.completionStatus[year]?[month]?[day] ?? false;
@@ -46,13 +50,26 @@ class SingleDailyTask extends StatelessWidget {
               }[selectedWeekday]);
 
           if (isWithinDateRange && !isTaskCompleted && shouldShowTask) {
-            groupedItems[task.listName]?.add(task);
+            groupedItems[task.ownerName]?.add(task);
           }
         }
 
+        // 处理 Grocery 项目
         for (var grocery in groceryProvider.groceryLists) {
+          print(grocery.name);
           if (!grocery.isCompleted) {
-            groupedItems[grocery.listName]?.add(grocery);
+            groupedItems[grocery.ownerName]?.add(grocery);
+          }
+        }
+
+        // 处理 Transfer 项目
+        for (var transfer in transferProvider.transferLists) {
+          print(transfer.name);
+          if (transfer.status != TransferStatus.completed) {
+            print(transfer.name);
+            print(transfer.ownerName);
+            print(transfer.bill);
+            groupedItems[transfer.ownerName]?.add(transfer);
           }
         }
 
@@ -83,6 +100,7 @@ class SingleDailyTask extends StatelessWidget {
                           ),
                         );
                       } else if (item is Grocery) {
+                        print('trigerd');
                         return DragAndDropItem(
                           child: GroceryContainer(
                             groceryList: item,
@@ -92,6 +110,37 @@ class SingleDailyTask extends StatelessWidget {
                               final updatedItem =
                                   item.copyWith(isCompleted: !item.isCompleted);
                               groceryProvider.updateGroceryList(updatedItem);
+                            },
+                          ),
+                        );
+                      } else if (item is Transfer) {
+                        // 新增 Transfer 处理
+                        print('trigerd');
+                        return DragAndDropItem(
+                          child: TransferContainer(
+                            transfer: item,
+                            onCompleted: () {
+                              // Toggle the status based on current status
+                              TransferStatus newStatus;
+                              print('go to pending');
+                              if (item.status == TransferStatus.uncompleted) {
+                                print('go to pending');
+                                newStatus = TransferStatus.pending;
+                              } else if (item.status ==
+                                  TransferStatus.pending) {
+                                newStatus = TransferStatus.readyToComplete;
+                                print('go to read');
+                              } else if (item.status ==
+                                  TransferStatus.readyToComplete) {
+                                newStatus = TransferStatus.completed;
+                              } else {
+                                newStatus = TransferStatus
+                                    .uncompleted; // Reset if already completed
+                              }
+
+                              final updatedTransfer =
+                                  item.copyWith(status: newStatus);
+                              transferProvider.updateTransfer(updatedTransfer);
                             },
                           ),
                         );
@@ -131,6 +180,10 @@ class SingleDailyTask extends StatelessWidget {
             } else if (movedItem is Grocery) {
               movedItem = movedItem.copyWith(listName: targetListName);
               groceryProvider.updateGroceryList(movedItem);
+            } else if (movedItem is Transfer) {
+              // 新增 Transfer 处理
+              movedItem = movedItem.copyWith(listName: targetListName);
+              transferProvider.updateTransfer(movedItem);
             }
 
             // 触发通知

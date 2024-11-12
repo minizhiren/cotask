@@ -39,7 +39,7 @@ class _CreateTaskPage extends State<CreateTaskPage> {
       startDate: startDate,
       endDate: endDate,
       selectedDays: selectedDays,
-      listName: selectedAssignOption,
+      ownerName: selectedAssignOption,
       credit: 60,
     );
 
