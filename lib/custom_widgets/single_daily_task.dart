@@ -8,28 +8,26 @@ import 'package:cotask/custom_widgets/task.dart';
 import 'package:cotask/custom_widgets/grocery.dart';
 
 class SingleDailyTask extends StatelessWidget {
-  // Define all list names, even if empty, for both tasks and groceries
   final List<String> predefinedListNames = ['Unassigned Task', 'Me', 'Lucas'];
-  final ScrollController _scrollController =
-      ScrollController(); // ScrollController added
+  final ScrollController _scrollController = ScrollController();
+
+  SingleDailyTask({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Get selected date
     final selectedDate = Provider.of<DateProvider>(context).selectedDate;
     final year = selectedDate.year;
     final month = selectedDate.month;
     final day = selectedDate.day;
-    final selectedWeekday = selectedDate.weekday; // 1=Monday, ..., 7=Sunday
+    final selectedWeekday = selectedDate.weekday;
 
-    return Consumer2<TaskProvider, GroceryProvider>(
-      builder: (context, taskProvider, groceryProvider, child) {
-        // Initialize grouped items (tasks and groceries) Map, ensuring each predefined list has an empty list
+    return Consumer3<TaskProvider, GroceryProvider, NotificationProvider>(
+      builder: (context, taskProvider, groceryProvider, notificationProvider,
+          child) {
         Map<String, List<dynamic>> groupedItems = {
           for (var listName in predefinedListNames) listName: []
         };
 
-        // Group tasks by `listName`
         for (var task in taskProvider.tasks) {
           bool isTaskCompleted =
               task.completionStatus[year]?[month]?[day] ?? false;
@@ -52,14 +50,12 @@ class SingleDailyTask extends StatelessWidget {
           }
         }
 
-        // Group groceries by `listName`
         for (var grocery in groceryProvider.groceryLists) {
           if (!grocery.isCompleted) {
             groupedItems[grocery.listName]?.add(grocery);
           }
         }
 
-        // Build DragAndDropLists
         List<DragAndDropList> lists = groupedItems.entries.map((entry) {
           String listName = entry.key;
           List<dynamic> items = entry.value;
@@ -122,7 +118,7 @@ class SingleDailyTask extends StatelessWidget {
 
         return DragAndDropLists(
           children: lists,
-          scrollController: _scrollController, // Assign the ScrollController
+          scrollController: _scrollController,
           onItemReorder:
               (oldItemIndex, oldListIndex, newItemIndex, newListIndex) {
             var sourceListName = predefinedListNames[oldListIndex];
@@ -136,6 +132,9 @@ class SingleDailyTask extends StatelessWidget {
               movedItem = movedItem.copyWith(listName: targetListName);
               groceryProvider.updateGroceryList(movedItem);
             }
+
+            // 触发通知
+            notificationProvider.showDot();
           },
           onListReorder: (oldListIndex, newListIndex) {},
           listDecoration: BoxDecoration(

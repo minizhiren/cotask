@@ -143,9 +143,9 @@ class _DailyTaskPage extends State<DailyTaskPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 25),
-              Container(
-                height: 800,
+              const SizedBox(height: 15),
+              SizedBox(
+                height: 1000,
                 child: SingleDailyTask(),
               ),
               const SizedBox(height: 20),

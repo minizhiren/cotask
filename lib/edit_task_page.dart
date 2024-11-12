@@ -5,6 +5,7 @@ import 'providers/task_provider.dart';
 import 'package:cotask/custom_widgets/task.dart';
 import 'package:cotask/custom_widgets/custom_textfield.dart';
 import 'package:intl/intl.dart';
+import 'package:cotask/providers/global_var_provider.dart';
 
 class EditTaskPage extends StatefulWidget {
   final Task task;
@@ -22,15 +23,7 @@ class _EditTaskPage extends State<EditTaskPage> {
   final Set<String> selectedDays = {};
   final TextEditingController taskNameController = TextEditingController();
 
-  final daysOfWeek = [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun'
-  ]; // Full abbreviations for days
+  final daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   @override
   void initState() {
@@ -41,9 +34,14 @@ class _EditTaskPage extends State<EditTaskPage> {
     selectedDays.addAll(widget.task.selectedDays);
   }
 
+  void _deleteTask() {
+    Provider.of<TaskProvider>(context, listen: false).removeTask(widget.task);
+    Provider.of<NotificationProvider>(context, listen: false).showDot();
+    Navigator.pop(context); // Go back after deleting the task
+  }
+
   void editTask() {
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-
     final updatedTask = widget.task.copyWith(
       name: taskNameController.text,
       startDate: startDate,
@@ -51,7 +49,6 @@ class _EditTaskPage extends State<EditTaskPage> {
       selectedDays: selectedDays,
     );
 
-    // Update task in the specific list
     taskProvider.updateTask(updatedTask);
     Navigator.pop(context);
   }
@@ -73,6 +70,8 @@ class _EditTaskPage extends State<EditTaskPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -91,8 +90,8 @@ class _EditTaskPage extends State<EditTaskPage> {
                 margin: const EdgeInsets.only(left: 18, bottom: 18),
                 child: SvgPicture.asset(
                   'assets/left_arrow.svg',
-                  width: 24, // Adjust the width as needed
-                  height: 24, // Adjust the height as needed
+                  width: 24,
+                  height: 24,
                 ),
               ),
             ),
@@ -119,8 +118,10 @@ class _EditTaskPage extends State<EditTaskPage> {
         children: <Widget>[
           ListView(
             physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.only(
+                bottom: 80), // Extra padding to prevent overlap
             children: [
-              SizedBox(height: 50),
+              const SizedBox(height: 50),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -138,10 +139,10 @@ class _EditTaskPage extends State<EditTaskPage> {
                       controller: taskNameController,
                     ),
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                 ],
               ),
-              SizedBox(height: 50),
+              const SizedBox(height: 50),
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -149,24 +150,24 @@ class _EditTaskPage extends State<EditTaskPage> {
                   children: [
                     Row(
                       children: [
-                        Text("From: "),
+                        const Text("From: "),
                         IconButton(
-                          icon: Icon(Icons.calendar_today),
+                          icon: const Icon(Icons.calendar_today),
                           onPressed: () => _selectDateRange(context),
                         ),
-                        Text("${DateFormat('MM/dd').format(startDate)}"),
-                        SizedBox(width: 20),
-                        Text("To: "),
+                        Text(DateFormat('MM/dd').format(startDate)),
+                        const SizedBox(width: 20),
+                        const Text("To: "),
                         IconButton(
-                          icon: Icon(Icons.calendar_today),
+                          icon: const Icon(Icons.calendar_today),
                           onPressed: () => _selectDateRange(context),
                         ),
-                        Text("${DateFormat('MM/dd').format(endDate)}"),
+                        Text(DateFormat('MM/dd').format(endDate)),
                       ],
                     ),
                     Column(
                       children: [
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Wrap(
                           spacing: 8.0,
                           children: daysOfWeek.map((day) {
@@ -182,23 +183,23 @@ class _EditTaskPage extends State<EditTaskPage> {
                                 });
                               },
                               child: Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     vertical: 8, horizontal: 8),
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.grey),
                                   color: isSelected
-                                      ? Color.fromARGB(149, 238, 136, 146)
+                                      ? const Color.fromARGB(149, 238, 136, 146)
                                       : Colors.white,
                                   borderRadius: BorderRadius.circular(8),
                                   boxShadow: isSelected
                                       ? [
                                           BoxShadow(
-                                            color: Color.fromARGB(
+                                            color: const Color.fromARGB(
                                                     150, 250, 125, 137)
                                                 .withOpacity(0.4),
                                             spreadRadius: 2,
                                             blurRadius: 6,
-                                            offset: Offset(0, 3),
+                                            offset: const Offset(0, 3),
                                           ),
                                         ]
                                       : [],
@@ -221,33 +222,59 @@ class _EditTaskPage extends State<EditTaskPage> {
                   ],
                 ),
               ),
-              SizedBox(
-                height: 100,
-              ),
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                ElevatedButton(
-                    onPressed: editTask,
-                    style: ElevatedButton.styleFrom(
-                      shape: const StadiumBorder(),
-                      backgroundColor: const Color(0xFFFA7D8A),
-                    ),
-                    child: const Text(
-                      'Create Task',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontFamily: 'Raleway',
-                        fontWeight: FontWeight.w900,
-                        height: 0,
-                      ),
-                    )),
-                SizedBox(
-                  width: 30,
-                )
-              ]),
             ],
           ),
+          Positioned(
+              bottom: screenHeight * 0.15, // 15% from the bottom of the screen
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  SizedBox(
+                    width: 170, // Adjust width as needed
+                    child: ElevatedButton(
+                      onPressed: editTask,
+                      style: ElevatedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                        backgroundColor: const Color(0xFFFA7D8A),
+                      ),
+                      child: const Text(
+                        'Save Changes',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontFamily: 'Raleway',
+                          fontWeight: FontWeight.w900,
+                          height: 0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 170, // Adjust width as needed
+                    child: ElevatedButton(
+                      onPressed: _deleteTask,
+                      style: ElevatedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                        backgroundColor: const Color(0xFFFA7D8A),
+                      ),
+                      child: const Text(
+                        'Delete Task',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontFamily: 'Raleway',
+                          fontWeight: FontWeight.w900,
+                          height: 0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )),
         ],
       ),
     );

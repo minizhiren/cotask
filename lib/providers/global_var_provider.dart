@@ -21,3 +21,19 @@ class DateProvider with ChangeNotifier {
     notifyListeners();
   }
 }
+
+class NotificationProvider with ChangeNotifier {
+  bool _showCalendarDot = false;
+
+  bool get showCalendarDot => _showCalendarDot;
+
+  void showDot() {
+    _showCalendarDot = true;
+    notifyListeners();
+  }
+
+  void hideDot() {
+    _showCalendarDot = false;
+    notifyListeners();
+  }
+}

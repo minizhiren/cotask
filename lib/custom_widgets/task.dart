@@ -107,7 +107,8 @@ class TaskContainer extends StatelessWidget {
   final Task task;
   final VoidCallback onTaskRemoved;
 
-  TaskContainer({
+  const TaskContainer({
+    super.key,
     required this.task,
     required this.onTaskRemoved,
   });

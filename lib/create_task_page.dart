@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'providers/task_provider.dart';
+import 'providers/global_var_provider.dart';
 import 'package:cotask/custom_widgets/task.dart';
 import 'package:cotask/custom_widgets/custom_textfield.dart';
 import 'package:intl/intl.dart';
@@ -15,55 +15,53 @@ class CreateTaskPage extends StatefulWidget {
 }
 
 class _CreateTaskPage extends State<CreateTaskPage> {
-  final daysOfWeek = [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun'
-  ]; // Full abbreviations for days
+  final daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   final selectedDays = <String>{};
 
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now();
 
-  // Text editing controller for task name
   final TextEditingController taskNameController = TextEditingController();
 
-  // Function to add a new task
+  // Dropdown options for "Assign to"
+  final List<String> assignOptions = ['Unassigned Task', 'Me', 'Lucas'];
+  String selectedAssignOption = 'Unassigned Task';
+
   void addNewTask() {
-    // Fetching the task provider
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
 
-    // Creating a new task with all parameters
+    // Create the new task
     final newTask = Task(
-        id: DateTime.now().millisecondsSinceEpoch,
-        name: taskNameController.text.isNotEmpty
-            ? taskNameController.text
-            : "New Task",
-        startDate: startDate,
-        endDate: endDate,
-        selectedDays: <String>{}, // Using selected days for recurring events
-        listName: 'Unassigned Task',
-        credit: 60);
+      id: DateTime.now().millisecondsSinceEpoch,
+      name: taskNameController.text.isNotEmpty
+          ? taskNameController.text
+          : "New Task",
+      startDate: startDate,
+      endDate: endDate,
+      selectedDays: selectedDays,
+      listName: selectedAssignOption,
+      credit: 60,
+    );
 
-    // Printing task details for debugging
-    print('Task Created:');
-    print('ID: ${newTask.id}');
-    print('Name: ${newTask.name}');
-    print('Start Date: ${DateFormat('yyyy-MM-dd').format(newTask.startDate)}');
-    print('End Date: ${DateFormat('yyyy-MM-dd').format(newTask.endDate)}');
-    print('Selected Days: ${newTask.selectedDays}');
-    print('List Name: ${newTask.listName}');
-    print('---');
-
-    // Adding the task to the "Unassigned Task" column
+    // Add the task to the provider
     taskProvider.addTask(newTask);
+    Provider.of<NotificationProvider>(context, listen: false).showDot();
+
+    // Show a success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Task added to schedule')),
+    );
+
+    // Reset the form to its default values
+    setState(() {
+      taskNameController.clear(); // Clear the task name
+      selectedDays.clear(); // Clear selected days
+      selectedAssignOption = 'Unassigned Task'; // Reset dropdown
+      startDate = DateTime.now(); // Reset date to now
+      endDate = DateTime.now(); // Reset end date to now
+    });
   }
 
-  // Function to select date range
   Future<void> _selectDateRange(BuildContext context) async {
     final DateTimeRange? picked = await showDateRangePicker(
       context: context,
@@ -81,6 +79,8 @@ class _CreateTaskPage extends State<CreateTaskPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -100,9 +100,7 @@ class _CreateTaskPage extends State<CreateTaskPage> {
             title: const Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 40,
-                ),
+                SizedBox(height: 40),
                 Text(
                   'Create Task',
                   style: TextStyle(
@@ -112,7 +110,7 @@ class _CreateTaskPage extends State<CreateTaskPage> {
                     fontWeight: FontWeight.w700,
                     height: 0,
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -123,12 +121,12 @@ class _CreateTaskPage extends State<CreateTaskPage> {
           ListView(
             physics: const BouncingScrollPhysics(),
             children: [
-              SizedBox(height: 50),
+              const SizedBox(height: 50),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
                     child: Text(
                       'Task Name :',
                       style: TextStyle(color: Colors.black87, fontSize: 18),
@@ -138,13 +136,84 @@ class _CreateTaskPage extends State<CreateTaskPage> {
                   Expanded(
                     child: CustomTextField(
                       text: 'Enter task name',
-                      controller: taskNameController, // Add controller
+                      controller: taskNameController,
                     ),
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                 ],
               ),
-              SizedBox(height: 50),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Text(
+                      'Assign to:',
+                      style: TextStyle(color: Colors.black87, fontSize: 18),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 10.0),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: BorderSide(
+                              color: Color(0x3FFA7D8A),
+                              width: 3.0,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: BorderSide(
+                              color: Color.fromARGB(150, 250, 125, 137),
+                              width: 3.0,
+                            ),
+                          ),
+                          hintStyle: TextStyle(
+                            color: Color.fromARGB(86, 50, 50, 50),
+                            fontSize: 16,
+                            fontFamily: 'Quicksand',
+                            fontWeight: FontWeight.w700,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        isExpanded: true,
+                        value: selectedAssignOption,
+                        items: assignOptions
+                            .map((option) => DropdownMenuItem<String>(
+                                  value: option,
+                                  child: Center(
+                                    child: Text(
+                                      option,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedAssignOption = value!;
+                          });
+                        },
+                        alignment: Alignment.center,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                ],
+              ),
+              const SizedBox(height: 50),
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -152,22 +221,22 @@ class _CreateTaskPage extends State<CreateTaskPage> {
                   children: [
                     Row(
                       children: [
-                        Text("From : "),
+                        const Text("From : "),
                         IconButton(
-                          icon: Icon(Icons.calendar_today),
+                          icon: const Icon(Icons.calendar_today),
                           onPressed: () => _selectDateRange(context),
                         ),
-                        Text("${DateFormat('MM/dd').format(startDate)}"),
-                        SizedBox(width: 20),
-                        Text("To: "),
+                        Text(DateFormat('MM/dd').format(startDate)),
+                        const SizedBox(width: 20),
+                        const Text("To: "),
                         IconButton(
-                          icon: Icon(Icons.calendar_today),
+                          icon: const Icon(Icons.calendar_today),
                           onPressed: () => _selectDateRange(context),
                         ),
-                        Text("${DateFormat('MM/dd').format(endDate)}"),
+                        Text(DateFormat('MM/dd').format(endDate)),
                       ],
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -186,12 +255,12 @@ class _CreateTaskPage extends State<CreateTaskPage> {
                                 });
                               },
                               child: Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     vertical: 8, horizontal: 8),
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.grey),
                                   color: isSelected
-                                      ? Color.fromARGB(149, 238, 136, 146)
+                                      ? const Color.fromARGB(149, 238, 136, 146)
                                       : Colors.white,
                                   borderRadius: BorderRadius.circular(8),
                                   boxShadow: isSelected
@@ -225,32 +294,37 @@ class _CreateTaskPage extends State<CreateTaskPage> {
                   ],
                 ),
               ),
-              SizedBox(
-                height: 100,
-              ),
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                ElevatedButton(
-                    onPressed: addNewTask,
-                    style: ElevatedButton.styleFrom(
-                      shape: const StadiumBorder(),
-                      backgroundColor: const Color(0xFFFA7D8A),
-                    ),
-                    child: const Text(
-                      'Create Task',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontFamily: 'Raleway',
-                        fontWeight: FontWeight.w900,
-                        height: 0,
-                      ),
-                    )),
-                SizedBox(
-                  width: 30,
-                )
-              ]),
+              const SizedBox(height: 100),
             ],
+          ),
+          Positioned(
+            bottom: screenHeight * 0.12,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: addNewTask,
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    backgroundColor: const Color(0xFFFA7D8A),
+                  ),
+                  child: const Text(
+                    'Add to Schedule',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontFamily: 'Raleway',
+                      fontWeight: FontWeight.w900,
+                      height: 0,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 30),
+              ],
+            ),
           ),
         ],
       ),

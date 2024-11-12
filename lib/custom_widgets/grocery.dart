@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:cotask/edit_task_page.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:cotask/providers/task_provider.dart';
-import 'package:cotask/providers/global_var_provider.dart';
+import 'package:cotask/edit_grocery_list_page.dart';
 
 class Grocery {
   final int id;
@@ -48,7 +44,8 @@ class GroceryContainer extends StatelessWidget {
   final VoidCallback onGroceryRemoved;
   final VoidCallback onCompleted;
 
-  GroceryContainer({
+  const GroceryContainer({
+    super.key,
     required this.groceryList,
     required this.onGroceryRemoved,
     required this.onCompleted,
@@ -69,12 +66,10 @@ class GroceryContainer extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Drag handle
           SizedBox(
             width: 30,
             child: SvgPicture.asset('assets/drag_handle.svg'),
           ),
-          // Grocery item name
           Expanded(
             flex: 2,
             child: Padding(
@@ -92,7 +87,6 @@ class GroceryContainer extends StatelessWidget {
               ),
             ),
           ),
-          // Mark as completed checkbox
           SizedBox(
             width: 30,
             child: groceryList.listName != 'Unassigned'
@@ -108,11 +102,15 @@ class GroceryContainer extends StatelessWidget {
                 : SizedBox.shrink(),
           ),
           SizedBox(width: 10),
-          // Edit or options menu
           GestureDetector(
             onTap: () {
-              // Navigate to edit page or open options
-              // Implement the edit functionality here
+              // Navigate to EditGroceryPage
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditGroceryPage(grocery: groceryList),
+                ),
+              );
             },
             child: SvgPicture.asset('assets/three_dot.svg'),
           ),

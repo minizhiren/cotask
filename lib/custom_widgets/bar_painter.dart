@@ -7,6 +7,8 @@ class BarChartWithAvatars extends StatelessWidget {
     Tuple(100.0, './assets/profile_icon.png'),
   ];
 
+  BarChartWithAvatars({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Get the height of the screen

@@ -1,112 +1,45 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-//提供的输入框
-//在textstarfield中密码显示为加密星号
 import 'package:flutter/material.dart';
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final String? text;
   final TextEditingController? controller;
-  final Function(String)? onChanged;
 
   const CustomTextField({
     super.key,
     required this.text,
     this.controller,
-    this.onChanged,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 370,
-      height: 48,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8.0),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x33FCBABA),
-            spreadRadius: 3,
-            blurRadius: 3,
-          ),
-        ],
-      ),
-      child: Container(
-        width: double.maxFinite,
-        height: double.maxFinite,
-        alignment: Alignment.center,
-        child: TextField(
-          controller: controller,
-          onChanged: onChanged,
-          textAlign: TextAlign.center,
-          textAlignVertical: TextAlignVertical.center,
-          cursorColor: Colors.transparent, // Set cursor color to transparent
-          cursorWidth: 0.0,
-          style: const TextStyle(
-            color: Color.fromARGB(86, 50, 50, 50),
-            fontSize: 16,
-            fontFamily: 'Quicksand',
-            fontWeight: FontWeight.w700,
-          ),
-          decoration: InputDecoration(
-            contentPadding: const EdgeInsets.all(4.0),
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Color(0x3FFA7D8A), // Change border color
-                width: 3.0, // Change border width
-              ),
-              borderRadius: BorderRadius.all(
-                  Radius.circular(8.0)), // Change border radius
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(
-                color:
-                    Color.fromARGB(150, 250, 125, 137), // Change border color
-                width: 3.0, // Change border width
-              ),
-              borderRadius: BorderRadius.all(
-                  Radius.circular(8.0)), // Change border radius
-            ),
-            hintStyle: const TextStyle(
-              color: Color.fromARGB(86, 50, 50, 50),
-              fontSize: 16,
-              fontFamily: 'Quicksand',
-              fontWeight: FontWeight.w700,
-            ),
-            hintText: text,
-            floatingLabelBehavior: FloatingLabelBehavior.never,
-            border: const OutlineInputBorder(borderSide: BorderSide.none),
-          ),
-        ),
-      ),
-    );
-  }
+  _CustomTextFieldState createState() => _CustomTextFieldState();
 }
 
-class CustomText2Field extends StatefulWidget {
-  final String? text;
-  final TextEditingController? controller;
-  final Function(String)? onChanged;
-
-  const CustomText2Field({
-    Key? key,
-    this.text,
-    this.controller,
-    this.onChanged,
-  }) : super(key: key);
+class _CustomTextFieldState extends State<CustomTextField> {
+  late TextEditingController _controller;
+  Color _textColor = Color.fromARGB(86, 50, 50, 50); // Initial gray color
 
   @override
-  _CustomText2FieldState createState() => _CustomText2FieldState();
-}
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? TextEditingController();
+    _controller.addListener(_checkTextChange);
+  }
 
-class _CustomText2FieldState extends State<CustomText2Field> {
-  bool _obscureText = true;
-
-  void _toggleVisibility() {
+  void _checkTextChange() {
     setState(() {
-      _obscureText = !_obscureText;
+      _textColor = _controller.text == widget.text
+          ? Color.fromARGB(86, 50, 50, 50) // Gray color when text matches hint
+          : Colors.black; // Black color when text is different
     });
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_checkTextChange);
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -127,14 +60,13 @@ class _CustomText2FieldState extends State<CustomText2Field> {
         ],
       ),
       child: TextField(
-        controller: widget.controller,
-        onChanged: widget.onChanged,
+        controller: _controller,
         textAlign: TextAlign.center,
         textAlignVertical: TextAlignVertical.center,
-        obscureText: _obscureText, // Enable obscure text
-        obscuringCharacter: '*', // Set the obscuring character
-        style: const TextStyle(
-          color: Color.fromARGB(86, 50, 50, 50),
+        cursorColor: Colors.transparent,
+        cursorWidth: 0.0,
+        style: TextStyle(
+          color: _textColor, // Use dynamic color based on text change
           fontSize: 16,
           fontFamily: 'Quicksand',
           fontWeight: FontWeight.w700,
@@ -143,36 +75,27 @@ class _CustomText2FieldState extends State<CustomText2Field> {
           contentPadding: const EdgeInsets.all(4.0),
           enabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(
-              color: Color(0x3FFA7D8A), // Change border color
-              width: 3.0, // Change border width
+              color: Color(0x3FFA7D8A),
+              width: 3.0,
             ),
-            borderRadius:
-                BorderRadius.all(Radius.circular(8.0)), // Change border radius
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
           focusedBorder: const OutlineInputBorder(
             borderSide: BorderSide(
-              color: Color.fromARGB(150, 250, 125, 137), // Change border color
-              width: 3.0, // Change border width
+              color: Color.fromARGB(150, 250, 125, 137),
+              width: 3.0,
             ),
-            borderRadius:
-                BorderRadius.all(Radius.circular(8.0)), // Change border radius
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
           ),
-          hintStyle: const TextStyle(
+          hintStyle: TextStyle(
             color: Color.fromARGB(86, 50, 50, 50),
             fontSize: 16,
             fontFamily: 'Quicksand',
             fontWeight: FontWeight.w700,
           ),
-          hintText: '',
+          hintText: widget.text,
           floatingLabelBehavior: FloatingLabelBehavior.never,
           border: const OutlineInputBorder(borderSide: BorderSide.none),
-          suffixIcon: IconButton(
-            icon: Icon(
-              _obscureText ? Icons.visibility : Icons.visibility_off,
-              color: Colors.redAccent, // Set the color of the icon
-            ),
-            onPressed: _toggleVisibility,
-          ),
         ),
       ),
     );

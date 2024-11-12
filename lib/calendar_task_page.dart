@@ -5,14 +5,36 @@ import 'providers/task_provider.dart';
 import 'providers/global_var_provider.dart';
 import 'package:intl/intl.dart';
 
-class CalendarTaskPage extends StatelessWidget {
+class CalendarTaskPage extends StatefulWidget {
+  const CalendarTaskPage({super.key});
+
+  @override
+  State<CalendarTaskPage> createState() => _CalendarTaskPageState();
+}
+
+class _CalendarTaskPageState extends State<CalendarTaskPage> {
+  late DateTime _currentDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentDate = DateTime.now();
+  }
+
+  void _changeMonth(int offset) {
+    setState(() {
+      _currentDate =
+          DateTime(_currentDate.year, _currentDate.month + offset, 1);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final DateTime now = DateTime.now();
-    final int currentMonth = now.month;
-    final int currentYear = now.year;
+    final int currentMonth = _currentDate.month;
+    final int currentYear = _currentDate.year;
 
-    final String monthName = DateFormat.MMMM().format(now).toUpperCase();
+    final String monthName =
+        DateFormat.MMMM().format(_currentDate).toUpperCase();
 
     final firstDayOfMonth = DateTime(currentYear, currentMonth, 1);
     final daysInMonth = DateTime(currentYear, currentMonth + 1, 0).day;
@@ -25,22 +47,37 @@ class CalendarTaskPage extends StatelessWidget {
         Provider.of<NavigationProvider>(context, listen: false);
     final tasks = taskProvider.tasks;
 
-    final Map<int, Set<String>> taskDays = {};
+    final Map<int, List<Color>> taskDotsByDay = {};
 
+    // Generate dots for each task on a given day
     for (var task in tasks) {
-      if (task.startDate.month == currentMonth &&
-          task.startDate.year == currentYear) {
-        for (int day = task.startDate.day; day <= task.endDate.day; day++) {
-          final date = DateTime(currentYear, currentMonth, day);
-          final weekdayString = DateFormat.E().format(date); // 获取星期简写
+      DateTime taskDate = task.startDate;
+
+      while (!taskDate.isAfter(task.endDate)) {
+        if (taskDate.month == currentMonth && taskDate.year == currentYear) {
+          final weekdayString = DateFormat.E().format(taskDate);
 
           if (task.selectedDays.isEmpty ||
               task.selectedDays.contains(weekdayString)) {
-            taskDays.putIfAbsent(day, () => <String>{});
-            taskDays[day]!.add(task.listName);
+            int day = taskDate.day;
+            taskDotsByDay.putIfAbsent(day, () => []);
+
+            // Assign color based on person assigned to the task
+            Color indicatorColor;
+            if (task.listName == 'Me') {
+              indicatorColor = Colors.purple;
+            } else if (task.listName == 'Lucas') {
+              indicatorColor = Colors.orange;
+            } else {
+              indicatorColor = Colors.grey;
+            }
+
+            // Add a dot for each task on the same day
+            taskDotsByDay[day]!.add(indicatorColor);
           }
         }
-      } else {}
+        taskDate = taskDate.add(Duration(days: 1));
+      }
     }
 
     return Scaffold(
@@ -81,9 +118,22 @@ class CalendarTaskPage extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 40, bottom: 20),
-            child: Text(
-              monthName,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () => _changeMonth(-1),
+                ),
+                Text(
+                  "$monthName $currentYear",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: Icon(Icons.arrow_forward),
+                  onPressed: () => _changeMonth(1),
+                ),
+              ],
             ),
           ),
           Padding(
@@ -106,7 +156,7 @@ class CalendarTaskPage extends StatelessWidget {
               padding: EdgeInsets.all(8.0),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 7,
-                childAspectRatio: 1.0,
+                childAspectRatio: 0.8, // Increase height for more space
               ),
               itemCount: daysInMonth + leadingEmptyDays,
               itemBuilder: (context, index) {
@@ -114,7 +164,7 @@ class CalendarTaskPage extends StatelessWidget {
                   return Container();
                 } else {
                   final day = index - leadingEmptyDays + 1;
-                  final listNamesForDay = taskDays[day] ?? <String>{};
+                  final dotsForDay = taskDotsByDay[day] ?? [];
                   return GestureDetector(
                     onTap: () {
                       dateProvider.updateSelectedDate(
@@ -122,7 +172,7 @@ class CalendarTaskPage extends StatelessWidget {
                       );
                       navigationProvider.setCurrentIndex(0);
                     },
-                    child: _buildDayBox(day, listNamesForDay),
+                    child: _buildDayBox(day, dotsForDay),
                   );
                 }
               },
@@ -133,22 +183,7 @@ class CalendarTaskPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDayBox(int day, Set<String> listNamesForDay) {
-    List<Widget> taskIndicators = [];
-
-    for (var listName in listNamesForDay) {
-      print(listName);
-      Color indicatorColor;
-      if (listName == 'Me') {
-        indicatorColor = Colors.purple;
-      } else if (listName == 'Lucas') {
-        indicatorColor = Colors.orange;
-      } else {
-        indicatorColor = Colors.grey;
-      }
-      taskIndicators.add(_buildTaskIndicator(indicatorColor));
-    }
-
+  Widget _buildDayBox(int day, List<Color> dotsForDay) {
     return Container(
       padding: EdgeInsets.all(2.0),
       margin: EdgeInsets.all(4.0),
@@ -163,12 +198,15 @@ class CalendarTaskPage extends StatelessWidget {
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
           Spacer(),
-          if (taskIndicators.isNotEmpty)
+          if (dotsForDay.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: 6.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: taskIndicators,
+              child: Wrap(
+                spacing: 2.0,
+                runSpacing: 2.0,
+                children: dotsForDay
+                    .map((color) => _buildTaskIndicator(color))
+                    .toList(),
               ),
             ),
         ],
@@ -180,7 +218,6 @@ class CalendarTaskPage extends StatelessWidget {
     return Container(
       width: 8.0,
       height: 8.0,
-      margin: EdgeInsets.symmetric(horizontal: 2.0),
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,

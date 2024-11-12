@@ -7,7 +7,7 @@ class TaskProvider with ChangeNotifier {
         id: 1,
         name: 'Task 1',
         startDate: DateTime.now(),
-        endDate: DateTime.now().add(Duration(days: 15)),
+        endDate: DateTime.now().add(Duration(days: 45)),
         listName: 'Unassigned Task',
         selectedDays: {'Mon', 'Wed', 'Fri'},
         credit: 60),
