@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:cotask/custom_widgets/grocery.dart';
 import 'package:cotask/providers/global_var_provider.dart';
 import 'package:cotask/providers/gorcery_provider.dart';
+import 'package:cotask/custom_widgets/custom_textfield.dart';
 
 class GroceryListPage extends StatefulWidget {
   const GroceryListPage({super.key});
@@ -14,6 +15,8 @@ class GroceryListPage extends StatefulWidget {
 
 class _GroceryListPageState extends State<GroceryListPage> {
   final List<TextEditingController> _controllers = [];
+  final TextEditingController _listNameController =
+      TextEditingController(); // 新增的用于获取grocery list名称的TextController
 
   @override
   void initState() {
@@ -35,7 +38,12 @@ class _GroceryListPageState extends State<GroceryListPage> {
   }
 
   void addNewTask() {
-    // 收集所有非空的输入
+    // 获取grocery list的名称
+    final listName = _listNameController.text.isNotEmpty
+        ? _listNameController.text
+        : "New Grocery List"; // 如果用户未输入名称，则提供默认名称
+
+    // 收集所有非空的输入项
     final inputGrocery = _controllers
         .where((controller) => controller.text.isNotEmpty)
         .map((controller) => controller.text)
@@ -52,7 +60,7 @@ class _GroceryListPageState extends State<GroceryListPage> {
     // 创建一个新的 Grocery 对象
     final newGrocery = Grocery(
       id: DateTime.now().millisecondsSinceEpoch, // 使用时间戳作为唯一ID
-      name: 'New Grocery',
+      name: listName, // 将用户输入的名称赋值给name
       listName: 'Unassigned Task',
       inputGrocery: inputGrocery,
       credit: 60, // 默认信用值
@@ -71,8 +79,8 @@ class _GroceryListPageState extends State<GroceryListPage> {
     }
     _controllers.clear();
 
-    // 只添加一个新的空白输入框
-    _addNewItem();
+    _listNameController.clear(); // 清空list name输入框
+    _addNewItem(); // 只添加一个新的空白输入框
 
     // 显示成功提示
     ScaffoldMessenger.of(context).showSnackBar(
@@ -85,6 +93,7 @@ class _GroceryListPageState extends State<GroceryListPage> {
     for (var controller in _controllers) {
       controller.dispose();
     }
+    _listNameController.dispose(); // 释放list name控制器
     super.dispose();
   }
 
@@ -136,67 +145,93 @@ class _GroceryListPageState extends State<GroceryListPage> {
       body: Stack(
         children: [
           Padding(
-            padding:
-                const EdgeInsets.only(top: 20, left: 8, right: 8, bottom: 8),
-            child: ListView.builder(
-              itemCount: _controllers.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(width: 5),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 6.0),
-                        child: Container(
-                          width: 23,
-                          height: 23,
-                          decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 243, 126, 126),
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            '${index + 1}',
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text(
+                        'List Name :',
+                        style: TextStyle(color: Colors.black87, fontSize: 18),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: TextField(
-                          controller: _controllers[index],
-                          onSubmitted: (value) {
-                            if (value.isNotEmpty &&
-                                index == _controllers.length - 1) {
-                              _addNewItem(); // Automatically add new row only if it's the last one
-                            }
-                          },
-                          decoration: const InputDecoration(
-                            hintText: 'Enter grocery item',
-                            contentPadding: EdgeInsets.only(bottom: 8.0),
-                            border: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Color.fromARGB(255, 240, 142, 142),
+                    ),
+                    Expanded(
+                      child: CustomTextField(
+                        text: 'Enter task name',
+                        controller: _listNameController,
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _controllers.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(width: 5),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 6.0),
+                              child: Container(
+                                width: 23,
+                                height: 23,
+                                decoration: const BoxDecoration(
+                                  color: Color.fromARGB(255, 243, 126, 126),
+                                  shape: BoxShape.circle,
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                    color: Color.fromARGB(255, 255, 255, 255),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: TextField(
+                                controller: _controllers[index],
+                                onSubmitted: (value) {
+                                  if (value.isNotEmpty &&
+                                      index == _controllers.length - 1) {
+                                    _addNewItem(); // Automatically add new row only if it's the last one
+                                  }
+                                },
+                                decoration: const InputDecoration(
+                                  hintText: 'Enter grocery item',
+                                  contentPadding: EdgeInsets.only(bottom: 8.0),
+                                  border: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color.fromARGB(255, 240, 142, 142),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _removeItem(index),
+                            ),
+                            const SizedBox(width: 10),
+                          ],
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _removeItem(index),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
           ),
           Positioned(
