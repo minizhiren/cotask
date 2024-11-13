@@ -25,7 +25,7 @@ class TransferProvider with ChangeNotifier {
   // 添加一个 transfer 到列表中
   void addTransfer(Transfer transfer) {
     transferLists.add(transfer);
-    print('trigerd');
+
     notifyListeners();
   }
 

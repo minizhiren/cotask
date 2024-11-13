@@ -20,24 +20,35 @@ class EditTaskPage extends StatefulWidget {
 class _EditTaskPage extends State<EditTaskPage> {
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now();
-  final Set<String> selectedDays = {};
+  final Set<Weekday> selectedDays = {};
   final TextEditingController taskNameController = TextEditingController();
 
-  final Set<String> enabledDays = {};
+  final Set<Weekday> enabledDays = {};
 
-  final daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  final daysOfWeek = [
+    Weekday.Mon,
+    Weekday.Tue,
+    Weekday.Wed,
+    Weekday.Thu,
+    Weekday.Fri,
+    Weekday.Sat,
+    Weekday.Sun
+  ];
+  final TextEditingController creditController = TextEditingController();
+  String selectedAssignOption = 'Unassigned Task'; // 默认选项
 
   @override
   void initState() {
     super.initState();
 
-    // 初始化任务名称、开始和结束日期
+    // 初始化任务名称、开始和结束日期、assignedTo和credit
     taskNameController.text = widget.task.name;
     startDate = widget.task.startDate;
     endDate = widget.task.endDate;
     selectedDays.addAll(widget.task.selectedDays);
+    selectedAssignOption = widget.task.ownerName;
+    creditController.text = widget.task.credit.toString();
 
-    // 调用 _updateEnabledDays 方法以基于初始的 startDate 和 endDate 设置 enabledDays
     _updateEnabledDays();
   }
 
@@ -49,11 +60,17 @@ class _EditTaskPage extends State<EditTaskPage> {
 
   void editTask() {
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+
+    // 从 creditController 获取新的信用分数值
+    int credit = int.tryParse(creditController.text) ?? widget.task.credit;
+
     final updatedTask = widget.task.copyWith(
       name: taskNameController.text,
       startDate: startDate,
       endDate: endDate,
       selectedDays: selectedDays,
+      ownerName: selectedAssignOption, // 更新的分配人
+      credit: credit, // 更新的信用分数
     );
 
     taskProvider.updateTask(updatedTask);
@@ -65,12 +82,38 @@ class _EditTaskPage extends State<EditTaskPage> {
     if (endDate.difference(startDate).inDays < 7) {
       DateTime currentDate = startDate;
       while (!currentDate.isAfter(endDate)) {
-        String weekday = DateFormat('EEE').format(currentDate);
-        enabledDays.add(weekday);
+        // 获取当前日期的星期，并将其转换为 Weekday 枚举
+        String weekdayString = DateFormat('EEE').format(currentDate);
+        Weekday? weekdayEnum = _getWeekdayEnum(weekdayString);
+        if (weekdayEnum != null) {
+          enabledDays.add(weekdayEnum);
+        }
         currentDate = currentDate.add(Duration(days: 1));
       }
     } else {
       enabledDays.addAll(daysOfWeek);
+    }
+  }
+
+// 将 String 类型的 weekday 转换为 Weekday 枚举
+  Weekday? _getWeekdayEnum(String weekday) {
+    switch (weekday) {
+      case 'Mon':
+        return Weekday.Mon;
+      case 'Tue':
+        return Weekday.Tue;
+      case 'Wed':
+        return Weekday.Wed;
+      case 'Thu':
+        return Weekday.Thu;
+      case 'Fri':
+        return Weekday.Fri;
+      case 'Sat':
+        return Weekday.Sat;
+      case 'Sun':
+        return Weekday.Sun;
+      default:
+        return null;
     }
   }
 
@@ -162,6 +205,111 @@ class _EditTaskPage extends State<EditTaskPage> {
                     ),
                   ),
                   const SizedBox(width: 20),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Assign to Column
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20.0, vertical: 10),
+                          child: Text(
+                            'Assign to:',
+                            style:
+                                TextStyle(color: Colors.black87, fontSize: 16),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                borderSide: BorderSide(
+                                  color: Color(0x3FFA7D8A),
+                                  width: 3.0,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                borderSide: BorderSide(
+                                  color: Color.fromARGB(150, 250, 125, 137),
+                                  width: 3.0,
+                                ),
+                              ),
+                              hintStyle: TextStyle(
+                                color: Color.fromARGB(86, 50, 50, 50),
+                                fontSize: 16,
+                                fontFamily: 'Quicksand',
+                                fontWeight: FontWeight.w700,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            isExpanded: true,
+                            value: selectedAssignOption,
+                            items: ['Unassigned Task', 'Me', 'Lucas']
+                                .map((option) => DropdownMenuItem<String>(
+                                      value: option,
+                                      child: Center(
+                                        child: Text(
+                                          option,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedAssignOption = value!;
+                              });
+                            },
+                            alignment: Alignment.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 20), // Spacing between columns
+
+                  // Credit Column
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20.0, vertical: 10),
+                          child: Text(
+                            'Credit:',
+                            style:
+                                TextStyle(color: Colors.black87, fontSize: 16),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: CustomTextField(
+                            text: '60',
+                            controller: creditController,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 50),
@@ -292,7 +440,7 @@ class _EditTaskPage extends State<EditTaskPage> {
                                       : [],
                                 ),
                                 child: Text(
-                                  day,
+                                  day.name,
                                   style: TextStyle(
                                     color: isEnabled
                                         ? (isSelected

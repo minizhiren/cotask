@@ -7,13 +7,15 @@ import 'package:provider/provider.dart';
 import 'package:cotask/providers/task_provider.dart';
 import 'package:cotask/providers/global_var_provider.dart';
 
+enum Weekday { Mon, Tue, Wed, Thu, Fri, Sat, Sun }
+
 class Task {
   final int id;
   final String name;
   final String ownerName;
   final DateTime startDate;
   final DateTime endDate;
-  final Set<String> selectedDays;
+  final Set<Weekday> selectedDays; // Change here to use Weekday enum
   final int credit;
   final Map<int, Map<int, Map<int, bool>>> completionStatus;
 
@@ -29,21 +31,21 @@ class Task {
   }) : completionStatus = completionStatus ??
             _initializeCompletionStatus(startDate, endDate, selectedDays);
 
-  // 更新任务完成状态的方法
+  // Updated copyWith method to use Weekday enum for selectedDays
   Task copyWith({
     int? id,
     String? name,
-    String? listName,
+    String? ownerName,
     DateTime? startDate,
     DateTime? endDate,
-    Set<String>? selectedDays,
+    Set<Weekday>? selectedDays, // Change here
     int? credit,
     Map<int, Map<int, Map<int, bool>>>? completionStatus,
   }) {
     return Task(
       id: id ?? this.id,
       name: name ?? this.name,
-      ownerName: listName ?? this.ownerName,
+      ownerName: ownerName ?? this.ownerName,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       selectedDays: selectedDays ?? this.selectedDays,
@@ -52,16 +54,15 @@ class Task {
     );
   }
 
-  // Helper function to initialize completionStatus
   static Map<int, Map<int, Map<int, bool>>> _initializeCompletionStatus(
-      DateTime startDate, DateTime endDate, Set<String> selectedDays) {
+      DateTime startDate, DateTime endDate, Set<Weekday> selectedDays) {
     final Map<int, Map<int, Map<int, bool>>> status = {};
 
     DateTime currentDate = startDate;
     while (currentDate.isBefore(endDate) ||
         currentDate.isAtSameMomentAs(endDate)) {
-      String weekday =
-          DateFormat('EEE').format(currentDate); // 获取星期的简写（例如 'Mon', 'Tue' 等）
+      Weekday weekday =
+          Weekday.values[currentDate.weekday - 1]; // Map weekday to enum
 
       if (selectedDays.isEmpty || selectedDays.contains(weekday)) {
         int year = currentDate.year;
@@ -70,10 +71,9 @@ class Task {
 
         status.putIfAbsent(year, () => {});
         status[year]!.putIfAbsent(month, () => {});
-        status[year]![month]![day] = false; // 将状态设置为未完成
+        status[year]![month]![day] = false; // Set status as incomplete
       }
 
-      // 移动到下一天
       currentDate = currentDate.add(Duration(days: 1));
     }
 
@@ -115,13 +115,13 @@ class TaskContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 获取选中的日期
+    // Retrieve the selected date
     final selectedDate = Provider.of<DateProvider>(context).selectedDate;
     final year = selectedDate.year;
     final month = selectedDate.month;
     final day = selectedDate.day;
 
-    // 判断任务是否在选定日期已完成
+    // Check if the task is completed for the selected date
     bool isTaskCompleted = task.completionStatus[year]?[month]?[day] ?? false;
 
     return Container(
@@ -143,27 +143,75 @@ class TaskContainer extends StatelessWidget {
             child: SvgPicture.asset('assets/drag_handle.svg'),
           ),
           Expanded(
-              flex: 2,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
-                child: Text(
-                  task.name,
-                  style: TextStyle(color: Colors.black87, fontSize: 18),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              )),
+            flex: 1,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
+                task.name,
+                style: TextStyle(color: Colors.black87, fontSize: 18),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              height: 30, // 调整高度以适应较大的格子
+              padding: const EdgeInsets.symmetric(vertical: 4), // 添加上下内边距
+              // decoration: BoxDecoration(
+              //   border:
+              //       Border.all(color: Colors.grey.shade300, width: 1), // 浅灰色边框
+              //   borderRadius: BorderRadius.circular(10),
+              // ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // 添加等间距
+                children: [
+                  for (var day in [
+                    Weekday.Mon,
+                    Weekday.Tue,
+                    Weekday.Wed,
+                    Weekday.Thu,
+                    Weekday.Fri,
+                    Weekday.Sat,
+                    Weekday.Sun
+                  ])
+                    Container(
+                      width: 13, // 设置固定宽度
+                      height: 13, // 设置固定高度
+                      decoration: BoxDecoration(
+                        color: task.selectedDays.contains(day)
+                            ? const Color.fromARGB(255, 236, 127, 163)
+                            : const Color.fromARGB(255, 228, 219, 219),
+                        borderRadius: BorderRadius.circular(3), // 增加每个格子的圆角
+                        boxShadow: task.selectedDays.contains(day)
+                            ? [
+                                BoxShadow(
+                                    color: Colors.pink.shade100,
+                                    blurRadius: 4,
+                                    offset: Offset(0, 2))
+                              ]
+                            : [], // 添加高亮的阴影效果
+                      ),
+                      alignment: Alignment.center,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 10,
+          ),
           SizedBox(
             width: 30,
             child: task.ownerName != 'Unassigned Task' && !isTaskCompleted
                 ? GestureDetector(
                     onTap: () {
-                      // 点击标记任务为完成
+                      // Mark task as complete for selected date
                       updateTaskCompletion(
                         task,
                         selectedDate,
                         true,
                         Provider.of<TaskProvider>(context, listen: false),
-                        task.ownerName, // 直接从 task 中获取 listName
+                        task.ownerName,
                       );
                     },
                     child: SvgPicture.asset(
@@ -181,7 +229,7 @@ class TaskContainer extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => EditTaskPage(
                     task: task,
-                    listName: task.ownerName, // 直接从 task 中获取 listName
+                    listName: task.ownerName,
                   ),
                 ),
               );

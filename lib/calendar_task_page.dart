@@ -1,3 +1,4 @@
+import 'package:cotask/custom_widgets/task.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -55,10 +56,11 @@ class _CalendarTaskPageState extends State<CalendarTaskPage> {
 
       while (!taskDate.isAfter(task.endDate)) {
         if (taskDate.month == currentMonth && taskDate.year == currentYear) {
-          final weekdayString = DateFormat.E().format(taskDate);
+          final weekdayEnum = Weekday.values[
+              taskDate.weekday - 1]; // `DateTime.weekday` 是从 1（周一）到 7（周日）
 
           if (task.selectedDays.isEmpty ||
-              task.selectedDays.contains(weekdayString)) {
+              task.selectedDays.contains(weekdayEnum)) {
             int day = taskDate.day;
             taskDotsByDay.putIfAbsent(day, () => []);
 

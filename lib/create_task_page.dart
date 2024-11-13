@@ -15,9 +15,17 @@ class CreateTaskPage extends StatefulWidget {
 }
 
 class _CreateTaskPage extends State<CreateTaskPage> {
-  final daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  final selectedDays = <String>{};
-  final Set<String> enabledDays = {};
+  final daysOfWeek = [
+    Weekday.Mon,
+    Weekday.Tue,
+    Weekday.Wed,
+    Weekday.Thu,
+    Weekday.Fri,
+    Weekday.Sat,
+    Weekday.Sun
+  ];
+  final Set<Weekday> selectedDays = {};
+  final Set<Weekday> enabledDays = {};
   @override
   void initState() {
     super.initState();
@@ -26,13 +34,14 @@ class _CreateTaskPage extends State<CreateTaskPage> {
     DateTime today = DateTime.now();
 
     // 格式化今天的星期简写名称并添加到 enabledDays 集合
-    enabledDays.add(DateFormat('EEE').format(today));
+    enabledDays.add(Weekday.values[today.weekday - 1]);
   }
 
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now();
 
   final TextEditingController taskNameController = TextEditingController();
+  final TextEditingController creditController = TextEditingController();
 
   // Dropdown options for "Assign to"
   final List<String> assignOptions = ['Unassigned Task', 'Me', 'Lucas'];
@@ -41,7 +50,21 @@ class _CreateTaskPage extends State<CreateTaskPage> {
   void addNewTask() {
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
 
-    // Create the new task
+    // 检查是否选择了至少一个 selectedDay
+    if (selectedDays.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select at least one day'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return; // 终止任务创建
+    }
+
+    // 从 creditController 获取信用分数，默认为 60
+    int credit = int.tryParse(creditController.text) ?? 60;
+
+    // 创建新任务
     final newTask = Task(
       id: DateTime.now().millisecondsSinceEpoch,
       name: taskNameController.text.isNotEmpty
@@ -49,27 +72,28 @@ class _CreateTaskPage extends State<CreateTaskPage> {
           : "New Task",
       startDate: startDate,
       endDate: endDate,
-      selectedDays: selectedDays,
+      selectedDays: Set<Weekday>.from(selectedDays),
       ownerName: selectedAssignOption,
-      credit: 60,
+      credit: credit,
     );
 
-    // Add the task to the provider
+    // 将任务添加到 provider
     taskProvider.addTask(newTask);
     Provider.of<NotificationProvider>(context, listen: false).showDot();
 
-    // Show a success message
+    // 显示成功消息
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Task added to schedule')),
     );
 
-    // Reset the form to its default values
+    // 清空输入框和状态
     setState(() {
-      taskNameController.clear(); // Clear the task name
-      selectedDays.clear(); // Clear selected days
-      selectedAssignOption = 'Unassigned Task'; // Reset dropdown
-      startDate = DateTime.now(); // Reset date to now
-      endDate = DateTime.now(); // Reset end date to now
+      taskNameController.clear();
+      creditController.clear(); // 清空 credit 输入框
+      selectedDays.clear();
+      selectedAssignOption = 'Unassigned Task';
+      startDate = DateTime.now();
+      endDate = DateTime.now();
     });
   }
 
@@ -78,12 +102,38 @@ class _CreateTaskPage extends State<CreateTaskPage> {
     if (endDate.difference(startDate).inDays < 7) {
       DateTime currentDate = startDate;
       while (!currentDate.isAfter(endDate)) {
-        String weekday = DateFormat('EEE').format(currentDate);
-        enabledDays.add(weekday);
+        // 获取当前日期的星期，并将其转换为 Weekday 枚举
+        String weekdayString = DateFormat('EEE').format(currentDate);
+        Weekday? weekdayEnum = _getWeekdayEnum(weekdayString);
+        if (weekdayEnum != null) {
+          enabledDays.add(weekdayEnum);
+        }
         currentDate = currentDate.add(Duration(days: 1));
       }
     } else {
       enabledDays.addAll(daysOfWeek);
+    }
+  }
+
+// 将 String 类型的 weekday 转换为 Weekday 枚举
+  Weekday? _getWeekdayEnum(String weekday) {
+    switch (weekday) {
+      case 'Mon':
+        return Weekday.Mon;
+      case 'Tue':
+        return Weekday.Tue;
+      case 'Wed':
+        return Weekday.Wed;
+      case 'Thu':
+        return Weekday.Thu;
+      case 'Fri':
+        return Weekday.Fri;
+      case 'Sat':
+        return Weekday.Sat;
+      case 'Sun':
+        return Weekday.Sun;
+      default:
+        return null;
     }
   }
 
@@ -115,7 +165,7 @@ class _CreateTaskPage extends State<CreateTaskPage> {
       DateTime today = DateTime.now();
 
       // 格式化今天的星期简写名称并添加到 enabledDays 集合
-      enabledDays.add(DateFormat('EEE').format(today));
+      enabledDays.add(Weekday.values[today.weekday - 1]);
     }
 
     return Scaffold(
@@ -183,71 +233,105 @@ class _CreateTaskPage extends State<CreateTaskPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Text(
-                      'Assign to:',
-                      style: TextStyle(color: Colors.black87, fontSize: 18),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                  // Assign to Column
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: DropdownButtonFormField<String>(
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 10.0),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                            borderSide: BorderSide(
-                              color: Color(0x3FFA7D8A),
-                              width: 3.0,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                            borderSide: BorderSide(
-                              color: Color.fromARGB(150, 250, 125, 137),
-                              width: 3.0,
-                            ),
-                          ),
-                          hintStyle: TextStyle(
-                            color: Color.fromARGB(86, 50, 50, 50),
-                            fontSize: 16,
-                            fontFamily: 'Quicksand',
-                            fontWeight: FontWeight.w700,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                            borderSide: BorderSide.none,
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20.0, vertical: 10),
+                          child: Text(
+                            'Assign to:',
+                            style:
+                                TextStyle(color: Colors.black87, fontSize: 16),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        isExpanded: true,
-                        value: selectedAssignOption,
-                        items: assignOptions
-                            .map((option) => DropdownMenuItem<String>(
-                                  value: option,
-                                  child: Center(
-                                    child: Text(
-                                      option,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedAssignOption = value!;
-                          });
-                        },
-                        alignment: Alignment.center,
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                borderSide: BorderSide(
+                                  color: Color(0x3FFA7D8A),
+                                  width: 3.0,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                borderSide: BorderSide(
+                                  color: Color.fromARGB(150, 250, 125, 137),
+                                  width: 3.0,
+                                ),
+                              ),
+                              hintStyle: TextStyle(
+                                color: Color.fromARGB(86, 50, 50, 50),
+                                fontSize: 16,
+                                fontFamily: 'Quicksand',
+                                fontWeight: FontWeight.w700,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            isExpanded: true,
+                            value: selectedAssignOption,
+                            items: assignOptions
+                                .map((option) => DropdownMenuItem<String>(
+                                      value: option,
+                                      child: Center(
+                                        child: Text(
+                                          option,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                selectedAssignOption = value!;
+                              });
+                            },
+                            alignment: Alignment.center,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 20), // Spacing between columns
+
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20.0, vertical: 10),
+                          child: Text(
+                            'Credit :',
+                            style:
+                                TextStyle(color: Colors.black87, fontSize: 16),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: CustomTextField(
+                            text: '60',
+                            controller: creditController,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 50),
@@ -325,7 +409,7 @@ class _CreateTaskPage extends State<CreateTaskPage> {
                                     color: Colors.black), // 图标
                                 SizedBox(width: 8), // 空间
                                 Text(
-                                  DateFormat('MM/dd').format(startDate), // 文字
+                                  DateFormat('MM/dd').format(endDate), // 文字
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: const Color.fromARGB(255, 0, 0, 0),
@@ -378,7 +462,7 @@ class _CreateTaskPage extends State<CreateTaskPage> {
                                       : [],
                                 ),
                                 child: Text(
-                                  day,
+                                  day.name,
                                   style: TextStyle(
                                     color: isEnabled
                                         ? (isSelected

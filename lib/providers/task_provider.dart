@@ -4,37 +4,41 @@ import 'package:cotask/custom_widgets/task.dart';
 class TaskProvider with ChangeNotifier {
   List<Task> tasks = [
     Task(
-        id: 1,
-        name: 'Task 1',
-        startDate: DateTime.now(),
-        endDate: DateTime.now().add(Duration(days: 45)),
-        ownerName: 'Unassigned Task',
-        selectedDays: {'Mon', 'Wed', 'Fri'},
-        credit: 60),
+      id: 1,
+      name: 'Task 1',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().add(Duration(days: 45)),
+      ownerName: 'Unassigned Task',
+      selectedDays: {Weekday.Mon, Weekday.Wed, Weekday.Fri},
+      credit: 60,
+    ),
     Task(
-        id: 4,
-        name: 'Task 4',
-        startDate: DateTime.now(),
-        endDate: DateTime.now().add(Duration(days: 15)),
-        ownerName: 'Me',
-        selectedDays: {'Mon', 'Wed', 'Fri'},
-        credit: 60),
+      id: 4,
+      name: 'Task 4',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().add(Duration(days: 15)),
+      ownerName: 'Me',
+      selectedDays: {Weekday.Mon, Weekday.Tue, Weekday.Fri},
+      credit: 60,
+    ),
     Task(
-        id: 5,
-        name: 'Task 5',
-        startDate: DateTime.now(),
-        endDate: DateTime.now().add(Duration(days: 15)),
-        ownerName: 'Me',
-        selectedDays: {'Mon', 'Wed', 'Fri'},
-        credit: 60),
+      id: 5,
+      name: 'Task 5',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().add(Duration(days: 15)),
+      ownerName: 'Me',
+      selectedDays: {Weekday.Sat, Weekday.Wed, Weekday.Fri},
+      credit: 60,
+    ),
     Task(
-        id: 6,
-        name: 'Task 6',
-        startDate: DateTime.now(),
-        endDate: DateTime.now().add(Duration(days: 15)),
-        ownerName: 'Lucas',
-        selectedDays: {'Mon', 'Wed', 'Fri'},
-        credit: 60),
+      id: 6,
+      name: 'Task 6',
+      startDate: DateTime.now(),
+      endDate: DateTime.now().add(Duration(days: 15)),
+      ownerName: 'Lucas',
+      selectedDays: {Weekday.Mon, Weekday.Wed, Weekday.Fri},
+      credit: 60,
+    ),
   ];
 
   // Add a task and specify its list
@@ -46,6 +50,7 @@ class TaskProvider with ChangeNotifier {
 
   // Remove a task
   void removeTask(Task task) {
+    _printTaskDetails(task, "removed");
     tasks.remove(task);
     notifyListeners();
   }
@@ -55,8 +60,10 @@ class TaskProvider with ChangeNotifier {
     final index = tasks.indexWhere((task) => task.id == updatedTask.id);
     if (index != -1) {
       tasks[index] = updatedTask;
+      print('update triggered----------------------------------------');
       notifyListeners();
     }
+    _printTaskDetails(updatedTask, "update");
   }
 
   // Print task details for debugging

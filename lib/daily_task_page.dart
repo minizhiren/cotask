@@ -16,6 +16,7 @@ class DailyTaskPage extends StatefulWidget {
 
 class _DailyTaskPage extends State<DailyTaskPage> {
   int currentIndexPage = 0;
+  bool isBusy = false; // 将 isBusy 提升为类的状态字段
 
   // 任务移除方法
   void onTaskRemoved(Task task, String columnName) {
@@ -29,21 +30,21 @@ class _DailyTaskPage extends State<DailyTaskPage> {
 
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate, // 设置为当前选中的日期
+      initialDate: selectedDate,
       firstDate: DateTime(1900),
       lastDate: DateTime(2101),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: ColorScheme.light(
-              primary: const Color(0xFFF66372), // 设置主色调
-              onPrimary: Colors.white, // 选中日期的文字颜色
-              onSurface: Colors.black, // 普通日期的文字颜色
+              primary: const Color(0xFFF66372),
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
             ),
             dialogBackgroundColor: Colors.white,
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFFF66372), // 设置确定按钮颜色
+                foregroundColor: const Color(0xFFF66372),
               ),
             ),
           ),
@@ -55,6 +56,89 @@ class _DailyTaskPage extends State<DailyTaskPage> {
     if (picked != null && picked != selectedDate) {
       Provider.of<DateProvider>(context, listen: false)
           .updateSelectedDate(picked);
+    }
+  }
+
+  void _toggleBusyStatus() {
+    if (isBusy) {
+      // Busy 状态下弹出确认对话框，询问是否返回 Available 状态
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Confirm"),
+            content: Text("Do you want to change status to Available?"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // 关闭弹窗
+                },
+                child: Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    isBusy = false; // 设置状态为 Available
+                  });
+                  Navigator.of(context).pop(); // 关闭弹窗
+                },
+                child: Text("Confirm"),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // 当前为 Available 状态时，进入 Busy 状态的弹窗
+      int selectedDays = 1; // 默认1天
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Select Busy Duration"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("How many days would you like to set as Busy?"),
+                Slider(
+                  value: selectedDays.toDouble(),
+                  min: 1,
+                  max: 14,
+                  divisions: 13,
+                  label: "$selectedDays days",
+                  onChanged: (value) {
+                    setState(() {
+                      selectedDays = value.toInt();
+                    });
+                  },
+                ),
+                Text(
+                  "$selectedDays ${selectedDays == 1 ? 'day' : 'days'} selected",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // 取消，关闭弹窗
+                },
+                child: Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    isBusy = true; // 设置为 Busy 状态
+                  });
+                  Navigator.of(context).pop(); // 确认并关闭弹窗
+                },
+                child: Text("Confirm"),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -81,9 +165,7 @@ class _DailyTaskPage extends State<DailyTaskPage> {
             title: const Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 40,
-                ),
+                SizedBox(height: 40),
                 Text(
                   'Daily Task',
                   style: TextStyle(
@@ -93,7 +175,7 @@ class _DailyTaskPage extends State<DailyTaskPage> {
                     fontWeight: FontWeight.w700,
                     height: 0,
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -107,8 +189,61 @@ class _DailyTaskPage extends State<DailyTaskPage> {
               Padding(
                 padding: const EdgeInsets.only(left: 10, right: 20, top: 20),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // Busy 状态选择
+                    GestureDetector(
+                      onTap: _toggleBusyStatus,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: LinearGradient(
+                            colors: isBusy
+                                ? [
+                                    const Color.fromARGB(255, 236, 206, 69),
+                                    const Color.fromARGB(255, 233, 221, 112)
+                                  ]
+                                : [
+                                    Colors.green.shade600,
+                                    Colors.green.shade400
+                                  ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isBusy
+                                  ? Colors.yellow.shade200
+                                  : Colors.green.shade200,
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              isBusy ? 'Busy' : 'Available',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Quicksand',
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.access_time_filled,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // 日历选择按钮
                     GestureDetector(
                       onTap: () => _selectDate(context),
                       child: Container(

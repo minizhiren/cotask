@@ -10,7 +10,11 @@ import 'package:cotask/custom_widgets/grocery.dart';
 import 'package:cotask/custom_widgets/transfer.dart'; // 新增 TransferContainer
 
 class SingleDailyTask extends StatelessWidget {
-  final List<String> predefinedListNames = ['Unassigned Task', 'Me', 'Lucas'];
+  final List<String> predefinedListNames = [
+    'Unassigned Task',
+    'Me',
+    'Lucas - Busy'
+  ];
   final ScrollController _scrollController = ScrollController();
 
   SingleDailyTask({super.key});
@@ -40,13 +44,13 @@ class SingleDailyTask extends StatelessWidget {
               selectedDate.isBefore(task.endDate.add(Duration(days: 1)));
           bool shouldShowTask = task.selectedDays.isEmpty ||
               task.selectedDays.contains({
-                1: 'Mon',
-                2: 'Tue',
-                3: 'Wed',
-                4: 'Thu',
-                5: 'Fri',
-                6: 'Sat',
-                7: 'Sun',
+                1: Weekday.Mon,
+                2: Weekday.Tue,
+                3: Weekday.Wed,
+                4: Weekday.Thu,
+                5: Weekday.Fri,
+                6: Weekday.Sat,
+                7: Weekday.Sun,
               }[selectedWeekday]);
 
           if (isWithinDateRange && !isTaskCompleted && shouldShowTask) {
@@ -64,11 +68,7 @@ class SingleDailyTask extends StatelessWidget {
 
         // 处理 Transfer 项目
         for (var transfer in transferProvider.transferLists) {
-          print(transfer.name);
           if (transfer.status != TransferStatus.completed) {
-            print(transfer.name);
-            print(transfer.ownerName);
-            print(transfer.bill);
             groupedItems[transfer.ownerName]?.add(transfer);
           }
         }
@@ -100,7 +100,6 @@ class SingleDailyTask extends StatelessWidget {
                           ),
                         );
                       } else if (item is Grocery) {
-                        print('trigerd');
                         return DragAndDropItem(
                           child: GroceryContainer(
                             groceryList: item,
@@ -115,7 +114,7 @@ class SingleDailyTask extends StatelessWidget {
                         );
                       } else if (item is Transfer) {
                         // 新增 Transfer 处理
-                        print('trigerd');
+
                         return DragAndDropItem(
                           child: TransferContainer(
                             transfer: item,
@@ -174,26 +173,66 @@ class SingleDailyTask extends StatelessWidget {
             var targetListName = predefinedListNames[newListIndex];
             var movedItem = groupedItems[sourceListName]![oldItemIndex];
 
-            if (movedItem is Task) {
-              movedItem = movedItem.copyWith(listName: targetListName);
-              taskProvider.updateTask(movedItem);
-            } else if (movedItem is Grocery) {
-              movedItem = movedItem.copyWith(listName: targetListName);
-              groceryProvider.updateGroceryList(movedItem);
+            if (movedItem is Task || movedItem is Grocery) {
+              if (targetListName == 'Lucas - Busy') {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text(""),
+                      content: Text("Lucas seems busy"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // 关闭弹窗
+                            // 继续执行转移操作
+                            if (movedItem is Task) {
+                              movedItem =
+                                  movedItem.copyWith(ownerName: targetListName);
+                              taskProvider.updateTask(movedItem);
+                            } else if (movedItem is Grocery) {
+                              movedItem =
+                                  movedItem.copyWith(listName: targetListName);
+                              groceryProvider.updateGroceryList(movedItem);
+                            }
+                          },
+                          child: Text("yes"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // 关闭弹窗
+                            // 取消转移操作，不做任何更新
+                          },
+                          child: Text("back"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } else {
+                // 如果目标列表不是 'Lucas - Midterm'，直接执行转移操作
+                if (movedItem is Task) {
+                  movedItem = movedItem.copyWith(ownerName: targetListName);
+                  taskProvider.updateTask(movedItem);
+                } else if (movedItem is Grocery) {
+                  movedItem = movedItem.copyWith(listName: targetListName);
+                  groceryProvider.updateGroceryList(movedItem);
+                }
+              }
             } else if (movedItem is Transfer) {
               // 弹出警告提示框，驳回操作
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text("??????"),
-                    content: Text("what? "),
+                    title: Text("warning"),
+                    content: Text("invalid action"),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop(); // 关闭弹窗
                         },
-                        child: Text("fine"),
+                        child: Text("ok"),
                       ),
                     ],
                   );
