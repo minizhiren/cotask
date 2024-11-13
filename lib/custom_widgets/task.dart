@@ -5,6 +5,7 @@ import 'package:cotask/edit_task_page.dart';
 import 'package:provider/provider.dart';
 import 'package:cotask/providers/task_provider.dart';
 import 'package:cotask/providers/global_var_provider.dart';
+import 'package:cotask/custom_widgets/dialog_helpers.dart';
 
 enum Weekday { Mon, Tue, Wed, Thu, Fri, Sat, Sun }
 
@@ -122,6 +123,111 @@ class TaskContainer extends StatelessWidget {
 
     // Check if the task is completed for the selected date
     bool isTaskCompleted = task.completionStatus[year]?[month]?[day] ?? false;
+    Future<bool?> _showConfirmationDialog(BuildContext context) async {
+      return await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2), // Shadow color
+                  offset: Offset(0, 4), // Shadow position
+                  blurRadius: 12, // Shadow blur
+                ),
+              ],
+            ),
+            child: AlertDialog(
+              backgroundColor: Colors.white, // Set background color to white
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(width: 8),
+                  Text(
+                    'Confirm Completion',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
+              ),
+              content: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  'Are you sure you want to mark this task as completed?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+              ),
+              actionsPadding: EdgeInsets.only(bottom: 12, right: 8),
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(
+                      width: 100, // Set uniform width for both buttons
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.grey[200],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: Colors.red[400],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 100, // Set uniform width for both buttons
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.green[400],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text(
+                          'Confirm',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            letterSpacing: 1.2,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(0, 1),
+                                blurRadius: 1,
+                                color: Colors.black26,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
@@ -152,50 +258,50 @@ class TaskContainer extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(
-            child: Container(
-              height: 30, // 调整高度以适应较大的格子
-              padding: const EdgeInsets.symmetric(vertical: 4), // 添加上下内边距
-              // decoration: BoxDecoration(
-              //   border:
-              //       Border.all(color: Colors.grey.shade300, width: 1), // 浅灰色边框
-              //   borderRadius: BorderRadius.circular(10),
-              // ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // 添加等间距
-                children: [
-                  for (var day in [
-                    Weekday.Mon,
-                    Weekday.Tue,
-                    Weekday.Wed,
-                    Weekday.Thu,
-                    Weekday.Fri,
-                    Weekday.Sat,
-                    Weekday.Sun
-                  ])
-                    Container(
-                      width: 13, // 设置固定宽度
-                      height: 13, // 设置固定高度
-                      decoration: BoxDecoration(
-                        color: task.selectedDays.contains(day)
-                            ? const Color.fromARGB(255, 236, 127, 163)
-                            : const Color.fromARGB(255, 228, 219, 219),
-                        borderRadius: BorderRadius.circular(3), // 增加每个格子的圆角
-                        boxShadow: task.selectedDays.contains(day)
-                            ? [
-                                BoxShadow(
-                                    color: Colors.pink.shade100,
-                                    blurRadius: 4,
-                                    offset: Offset(0, 2))
-                              ]
-                            : [], // 添加高亮的阴影效果
-                      ),
-                      alignment: Alignment.center,
-                    ),
-                ],
-              ),
-            ),
-          ),
+          // Expanded(
+          //   child: Container(
+          //     height: 30, // 调整高度以适应较大的格子
+          //     padding: const EdgeInsets.symmetric(vertical: 4), // 添加上下内边距
+          //     // decoration: BoxDecoration(
+          //     //   border:
+          //     //       Border.all(color: Colors.grey.shade300, width: 1), // 浅灰色边框
+          //     //   borderRadius: BorderRadius.circular(10),
+          //     // ),
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.spaceEvenly, // 添加等间距
+          //       children: [
+          //         for (var day in [
+          //           Weekday.Mon,
+          //           Weekday.Tue,
+          //           Weekday.Wed,
+          //           Weekday.Thu,
+          //           Weekday.Fri,
+          //           Weekday.Sat,
+          //           Weekday.Sun
+          //         ])
+          //           Container(
+          //             width: 13, // 设置固定宽度
+          //             height: 13, // 设置固定高度
+          //             decoration: BoxDecoration(
+          //               color: task.selectedDays.contains(day)
+          //                   ? const Color.fromARGB(255, 236, 127, 163)
+          //                   : const Color.fromARGB(255, 228, 219, 219),
+          //               borderRadius: BorderRadius.circular(3), // 增加每个格子的圆角
+          //               boxShadow: task.selectedDays.contains(day)
+          //                   ? [
+          //                       BoxShadow(
+          //                           color: Colors.pink.shade100,
+          //                           blurRadius: 4,
+          //                           offset: Offset(0, 2))
+          //                     ]
+          //                   : [], // 添加高亮的阴影效果
+          //             ),
+          //             alignment: Alignment.center,
+          //           ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
           SizedBox(
             width: 10,
           ),
@@ -204,104 +310,42 @@ class TaskContainer extends StatelessWidget {
             child: task.ownerName != 'Unassigned Task' && !isTaskCompleted
                 ? GestureDetector(
                     onTap: () async {
-                      if (!context.mounted) return;
-
-                      final bool? confirmed = await showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(width: 10),
-                                Text(
-                                  'Confirm Completion',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            content: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(
-                                'Are you sure you want to mark this task as completed?',
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.black54),
-                              ),
-                            ),
-                            backgroundColor: Colors.white,
-                            actionsPadding:
-                                EdgeInsets.only(bottom: 12, right: 8),
-                            actions: <Widget>[
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  backgroundColor: Colors.grey[200],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
-                                ),
-                                onPressed: () =>
-                                    Navigator.of(context).pop(false),
-                                child: Text(
-                                  'Cancel',
-                                  style: TextStyle(
-                                    color: Colors.red[400],
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  backgroundColor: Colors.green[200],
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
-                                ),
-                                onPressed: () =>
-                                    Navigator.of(context).pop(true),
-                                child: Text(
-                                  'Confirm',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    letterSpacing:
-                                        1.2, // Adds a bit of spacing between letters for a cleaner look
-                                    shadows: [
-                                      Shadow(
-                                        offset: Offset(0,
-                                            1), // Light shadow for subtle depth
-                                        blurRadius: 1,
-                                        color: Colors.black26,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                      final bool? confirmed =
+                          await _showConfirmationDialog(context);
 
                       if (confirmed == true) {
+                        // Perform the task completion action
+                        final taskProvider =
+                            Provider.of<TaskProvider>(context, listen: false);
                         updateTaskCompletion(
                           task,
                           selectedDate,
                           true,
-                          Provider.of<TaskProvider>(context, listen: false),
+                          taskProvider,
                           task.ownerName,
+                        );
+
+                        // Show a SnackBar with undo option
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content:
+                                Text('Task "${task.name}" marked as completed'),
+                            action: SnackBarAction(
+                              label: 'Undo',
+                              onPressed: () {
+                                // Undo the task completion by updating it back to incomplete
+                                updateTaskCompletion(
+                                  task,
+                                  selectedDate,
+                                  false,
+                                  taskProvider,
+                                  task.ownerName,
+                                );
+                              },
+                            ),
+                            duration: Duration(
+                                seconds: 3), // Adjust duration as needed
+                          ),
                         );
                       }
                     },
