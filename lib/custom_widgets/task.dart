@@ -156,16 +156,52 @@ class TaskContainer extends StatelessWidget {
             width: 30,
             child: task.ownerName != 'Unassigned Task' && !isTaskCompleted
                 ? GestureDetector(
-                    onTap: () {
-                      // 点击标记任务为完成
-                      updateTaskCompletion(
-                        task,
-                        selectedDate,
-                        true,
-                        Provider.of<TaskProvider>(context, listen: false),
-                        task.ownerName, // 直接从 task 中获取 listName
+                    onTap: () async {
+                      if (!context.mounted) return;
+
+                      final bool? confirmed = await showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Confirm Completion'),
+                            content: Text('Are you sure you want to mark this task as completed?'),
+                            backgroundColor: Colors.white,
+                            actions: <Widget>[
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.grey[200], // Light gray background
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8), // Rounded corners
+                                  ),
+                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Padding
+                                ),
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(color: Colors.black), // Black text color
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                child: Text('Confirm'),
+                              ),
+                            ],
+                          );
+                        },
                       );
+
+                      if (confirmed == true) {
+                        updateTaskCompletion(
+                          task,
+                          selectedDate,
+                          true,
+                          Provider.of<TaskProvider>(context, listen: false),
+                          task.ownerName,
+                        );
+                      }
                     },
+
                     child: SvgPicture.asset(
                       'assets/check_circle.svg',
                       color: Color.fromARGB(255, 115, 202, 115),
@@ -186,6 +222,7 @@ class TaskContainer extends StatelessWidget {
                 ),
               );
             },
+
             child: SvgPicture.asset('assets/three_dot.svg'),
           ),
         ],
