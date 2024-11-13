@@ -17,6 +17,17 @@ class CreateTaskPage extends StatefulWidget {
 class _CreateTaskPage extends State<CreateTaskPage> {
   final daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   final selectedDays = <String>{};
+  final Set<String> enabledDays = {};
+  @override
+  void initState() {
+    super.initState();
+
+    // 获取今天的日期
+    DateTime today = DateTime.now();
+
+    // 格式化今天的星期简写名称并添加到 enabledDays 集合
+    enabledDays.add(DateFormat('EEE').format(today));
+  }
 
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now();
@@ -62,6 +73,20 @@ class _CreateTaskPage extends State<CreateTaskPage> {
     });
   }
 
+  void _updateEnabledDays() {
+    enabledDays.clear();
+    if (endDate.difference(startDate).inDays < 7) {
+      DateTime currentDate = startDate;
+      while (!currentDate.isAfter(endDate)) {
+        String weekday = DateFormat('EEE').format(currentDate);
+        enabledDays.add(weekday);
+        currentDate = currentDate.add(Duration(days: 1));
+      }
+    } else {
+      enabledDays.addAll(daysOfWeek);
+    }
+  }
+
   Future<void> _selectDateRange(BuildContext context) async {
     final DateTimeRange? picked = await showDateRangePicker(
       context: context,
@@ -73,6 +98,7 @@ class _CreateTaskPage extends State<CreateTaskPage> {
       setState(() {
         startDate = picked.start;
         endDate = picked.end;
+        _updateEnabledDays();
       });
     }
   }
@@ -80,6 +106,17 @@ class _CreateTaskPage extends State<CreateTaskPage> {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+
+    @override
+    void initState() {
+      super.initState();
+
+      // 获取今天的日期
+      DateTime today = DateTime.now();
+
+      // 格式化今天的星期简写名称并添加到 enabledDays 集合
+      enabledDays.add(DateFormat('EEE').format(today));
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -222,55 +259,119 @@ class _CreateTaskPage extends State<CreateTaskPage> {
                     Row(
                       children: [
                         const Text("From : "),
-                        IconButton(
-                          icon: const Icon(Icons.calendar_today),
-                          onPressed: () => _selectDateRange(context),
+                        SizedBox(
+                          width: 10,
                         ),
-                        Text(DateFormat('MM/dd').format(startDate)),
+                        GestureDetector(
+                          onTap: () =>
+                              _selectDateRange(context), // 点击整个框架触发日期选择
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
+                            child: Row(
+                              children: [
+                                Icon(Icons.calendar_today,
+                                    color: Colors.black), // 图标
+                                SizedBox(width: 8), // 空间
+                                Text(
+                                  DateFormat('MM/dd').format(startDate), // 文字
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: const Color.fromARGB(255, 0, 0, 0),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                         const SizedBox(width: 20),
                         const Text("To: "),
-                        IconButton(
-                          icon: const Icon(Icons.calendar_today),
-                          onPressed: () => _selectDateRange(context),
+                        SizedBox(
+                          width: 15,
                         ),
-                        Text(DateFormat('MM/dd').format(endDate)),
+                        GestureDetector(
+                          onTap: () =>
+                              _selectDateRange(context), // 点击整个框架触发日期选择
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8),
+                            child: Row(
+                              children: [
+                                Icon(Icons.calendar_today,
+                                    color: Colors.black), // 图标
+                                SizedBox(width: 8), // 空间
+                                Text(
+                                  DateFormat('MM/dd').format(startDate), // 文字
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: const Color.fromARGB(255, 0, 0, 0),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Wrap(
                           spacing: 8.0,
                           children: daysOfWeek.map((day) {
+                            final isEnabled = enabledDays.contains(day);
                             final isSelected = selectedDays.contains(day);
                             return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  if (isSelected) {
-                                    selectedDays.remove(day);
-                                  } else {
-                                    selectedDays.add(day);
-                                  }
-                                });
-                              },
+                              onTap: isEnabled
+                                  ? () {
+                                      setState(() {
+                                        if (isSelected) {
+                                          selectedDays.remove(day);
+                                        } else {
+                                          selectedDays.add(day);
+                                        }
+                                      });
+                                    }
+                                  : null,
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 8, horizontal: 8),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  color: isSelected
-                                      ? const Color.fromARGB(149, 238, 136, 146)
-                                      : Colors.white,
+                                  color: isEnabled
+                                      ? Colors.white
+                                      : Colors.grey.shade300,
                                   borderRadius: BorderRadius.circular(8),
-                                  boxShadow: isSelected
+                                  boxShadow: isEnabled
                                       ? [
                                           BoxShadow(
-                                            color: Color.fromARGB(
-                                                    150, 250, 125, 137)
-                                                .withOpacity(0.4),
+                                            color: Colors.grey.withOpacity(0.5),
                                             spreadRadius: 2,
-                                            blurRadius: 6,
+                                            blurRadius: 5,
                                             offset: Offset(0, 3),
                                           ),
                                         ]
@@ -279,9 +380,13 @@ class _CreateTaskPage extends State<CreateTaskPage> {
                                 child: Text(
                                   day,
                                   style: TextStyle(
-                                    color: isSelected
-                                        ? Colors.white
-                                        : Colors.black,
+                                    color: isEnabled
+                                        ? (isSelected
+                                            ? const Color.fromARGB(
+                                                255, 250, 149, 149)
+                                            : const Color.fromARGB(
+                                                255, 160, 153, 153))
+                                        : Colors.grey,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),

@@ -137,7 +137,7 @@ class _CalendarTaskPageState extends State<CalendarTaskPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 25.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -186,9 +186,18 @@ class _CalendarTaskPageState extends State<CalendarTaskPage> {
   Widget _buildDayBox(int day, List<Color> dotsForDay) {
     return Container(
       padding: EdgeInsets.all(2.0),
-      margin: EdgeInsets.all(4.0),
+      margin: EdgeInsets.all(2.0),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,8 +211,8 @@ class _CalendarTaskPageState extends State<CalendarTaskPage> {
             Padding(
               padding: const EdgeInsets.only(bottom: 6.0),
               child: Wrap(
-                spacing: 2.0,
-                runSpacing: 2.0,
+                spacing: 1,
+                runSpacing: 1.0,
                 children: dotsForDay
                     .map((color) => _buildTaskIndicator(color))
                     .toList(),
