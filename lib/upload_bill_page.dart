@@ -141,7 +141,7 @@ class _UploadBillPageState extends State<UploadBillPage> {
                 alignment: Alignment.bottomLeft,
                 margin: const EdgeInsets.only(left: 18, bottom: 18),
                 child: SvgPicture.asset(
-                  'assets/burgur.svg',
+                  'assets/left_arrow.svg',
                   width: 24,
                   height: 24,
                 ),

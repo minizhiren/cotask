@@ -181,9 +181,24 @@ class SingleDailyTask extends StatelessWidget {
               movedItem = movedItem.copyWith(listName: targetListName);
               groceryProvider.updateGroceryList(movedItem);
             } else if (movedItem is Transfer) {
-              // 新增 Transfer 处理
-              movedItem = movedItem.copyWith(listName: targetListName);
-              transferProvider.updateTransfer(movedItem);
+              // 弹出警告提示框，驳回操作
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("??????"),
+                    content: Text("what? "),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // 关闭弹窗
+                        },
+                        child: Text("fine"),
+                      ),
+                    ],
+                  );
+                },
+              );
             }
 
             // 触发通知

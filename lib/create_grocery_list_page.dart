@@ -118,8 +118,6 @@ class _GroceryListPageState extends State<GroceryListPage> {
                 margin: const EdgeInsets.only(left: 18, bottom: 18),
                 child: SvgPicture.asset(
                   'assets/burgur.svg',
-                  width: 24,
-                  height: 24,
                 ),
               ),
             ),
