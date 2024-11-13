@@ -179,13 +179,17 @@ class TaskContainer extends StatelessWidget {
                                 onPressed: () => Navigator.of(context).pop(false),
                                 child: Text(
                                   'Cancel',
-                                  style: TextStyle(color: Colors.black), // Black text color
+                                  style: TextStyle(color: const Color.fromARGB(255, 218, 15, 15)), // Black text color
                                 ),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.of(context).pop(true),
-                                child: Text('Confirm'),
-                              ),
+                                child: Text(
+                                  'Confirm',
+                                  style: TextStyle(color: const Color.fromARGB(255, 10, 10, 10)), // Green text color
+                                ),
+                                ),
+                             // ),
                             ],
                           );
                         },
