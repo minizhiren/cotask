@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cotask/edit_task_page.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:cotask/providers/task_provider.dart';
 import 'package:cotask/providers/global_var_provider.dart';
@@ -204,15 +203,107 @@ class TaskContainer extends StatelessWidget {
             width: 30,
             child: task.ownerName != 'Unassigned Task' && !isTaskCompleted
                 ? GestureDetector(
-                    onTap: () {
-                      // Mark task as complete for selected date
-                      updateTaskCompletion(
-                        task,
-                        selectedDate,
-                        true,
-                        Provider.of<TaskProvider>(context, listen: false),
-                        task.ownerName,
+                    onTap: () async {
+                      if (!context.mounted) return;
+
+                      final bool? confirmed = await showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(width: 10),
+                                Text(
+                                  'Confirm Completion',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            content: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                'Are you sure you want to mark this task as completed?',
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.black54),
+                              ),
+                            ),
+                            backgroundColor: Colors.white,
+                            actionsPadding:
+                                EdgeInsets.only(bottom: 12, right: 8),
+                            actions: <Widget>[
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.grey[200],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                ),
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    color: Colors.red[400],
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.green[200],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                ),
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: Text(
+                                  'Confirm',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    letterSpacing:
+                                        1.2, // Adds a bit of spacing between letters for a cleaner look
+                                    shadows: [
+                                      Shadow(
+                                        offset: Offset(0,
+                                            1), // Light shadow for subtle depth
+                                        blurRadius: 1,
+                                        color: Colors.black26,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       );
+
+                      if (confirmed == true) {
+                        updateTaskCompletion(
+                          task,
+                          selectedDate,
+                          true,
+                          Provider.of<TaskProvider>(context, listen: false),
+                          task.ownerName,
+                        );
+                      }
                     },
                     child: SvgPicture.asset(
                       'assets/check_circle.svg',
