@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cotask/custom_widgets/task.dart';
+import 'package:cotask/providers/user_provider.dart'; // Import UserProvider
 
 class TaskProvider with ChangeNotifier {
   List<Task> tasks = [
@@ -48,10 +50,22 @@ class TaskProvider with ChangeNotifier {
     _printTaskDetails(task, "added");
   }
 
-  // Remove a task
-  void removeTask(Task task) {
-    _printTaskDetails(task, "removed");
+  // Remove or complete a task
+  void removeTask(Task task, bool isComplete, BuildContext context) {
+    if (isComplete) {
+      // Find the user in UserProvider and add the task's credit
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final user = userProvider.findUserByName(task.ownerName);
+      if (user != null) {
+        print('------------------------------------ will call user');
+        userProvider.addCreditToUser(user, task.credit);
+      }
+      _printTaskDetails(task, "completed");
+    } else {
+      _printTaskDetails(task, "removed");
+    }
     tasks.remove(task);
+    print('remove action!!');
     notifyListeners();
   }
 
@@ -63,7 +77,7 @@ class TaskProvider with ChangeNotifier {
       print('update triggered----------------------------------------');
       notifyListeners();
     }
-    _printTaskDetails(updatedTask, "update");
+    _printTaskDetails(updatedTask, "updated");
   }
 
   // Print task details for debugging

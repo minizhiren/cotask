@@ -5,7 +5,7 @@ import 'package:cotask/edit_task_page.dart';
 import 'package:provider/provider.dart';
 import 'package:cotask/providers/task_provider.dart';
 import 'package:cotask/providers/global_var_provider.dart';
-import 'package:cotask/custom_widgets/dialog_helpers.dart';
+import 'package:cotask/providers/user_provider.dart';
 
 enum Weekday { Mon, Tue, Wed, Thu, Fri, Sat, Sun }
 
@@ -317,36 +317,60 @@ class TaskContainer extends StatelessWidget {
                         // Perform the task completion action
                         final taskProvider =
                             Provider.of<TaskProvider>(context, listen: false);
-                        updateTaskCompletion(
-                          task,
-                          selectedDate,
-                          true,
-                          taskProvider,
-                          task.ownerName,
-                        );
+                        final userProvider =
+                            Provider.of<UserProvider>(context, listen: false);
 
-                        // Show a SnackBar with undo option
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content:
-                                Text('Task "${task.name}" marked as completed'),
-                            action: SnackBarAction(
-                              label: 'Undo',
-                              onPressed: () {
-                                // Undo the task completion by updating it back to incomplete
-                                updateTaskCompletion(
-                                  task,
-                                  selectedDate,
-                                  false,
-                                  taskProvider,
-                                  task.ownerName,
-                                );
-                              },
+                        // Find the user based on task ownership
+                        final user =
+                            userProvider.findUserByName(task.ownerName);
+
+                        if (user != null) {
+                          // Update the task completion status and add credit to the user
+                          updateTaskCompletion(
+                            task,
+                            selectedDate,
+                            true,
+                            taskProvider,
+                            task.ownerName,
+                          );
+
+                          // Add task credit to the user
+                          userProvider.addCreditToUser(user, task.credit);
+
+                          // Show a SnackBar with undo option
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Task "${task.name}" marked as completed'),
+                              action: SnackBarAction(
+                                label: 'Undo',
+                                onPressed: () {
+                                  // Undo the task completion by updating it back to incomplete
+                                  updateTaskCompletion(
+                                    task,
+                                    selectedDate,
+                                    false,
+                                    taskProvider,
+                                    task.ownerName,
+                                  );
+
+                                  // Subtract the task credit from the user
+                                  userProvider.addCreditToUser(
+                                      user, -task.credit);
+                                },
+                              ),
+                              duration: Duration(
+                                  seconds: 3), // Adjust duration as needed
                             ),
-                            duration: Duration(
-                                seconds: 3), // Adjust duration as needed
-                          ),
-                        );
+                          );
+                        } else {
+                          // If user is not found, you may want to show an error message or handle it accordingly
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    'User not found for task "${task.name}"')),
+                          );
+                        }
                       }
                     },
                     child: SvgPicture.asset(

@@ -21,7 +21,7 @@ class _DailyTaskPage extends State<DailyTaskPage> {
   // 任务移除方法
   void onTaskRemoved(Task task, String columnName) {
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-    taskProvider.removeTask(task);
+    taskProvider.removeTask(task, true, context);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -95,47 +95,78 @@ class _DailyTaskPage extends State<DailyTaskPage> {
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Select Busy Duration"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("How many days would you like to set as Busy?"),
-                Slider(
-                  value: selectedDays.toDouble(),
-                  min: 1,
-                  max: 14,
-                  divisions: 13,
-                  label: "$selectedDays days",
-                  onChanged: (value) {
-                    setState(() {
-                      selectedDays = value.toInt();
-                    });
-                  },
+          int selectedDays =
+              1; // Make sure this is defined outside the builder if you want to track it globally
+          bool isBusy =
+              false; // Also ensure this is defined in your widget state
+
+          return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                title: Text(
+                  "Select Busy Duration",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  "$selectedDays ${selectedDays == 1 ? 'day' : 'days'} selected",
-                  style: TextStyle(fontSize: 16),
+                content: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "How many days would you like to set as Busy?",
+                        style: TextStyle(fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 10),
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: Colors.blue,
+                          inactiveTrackColor: Colors.grey,
+                          thumbColor: Colors.blueAccent,
+                          overlayColor: Colors.blue.withOpacity(0.2),
+                          valueIndicatorColor: Colors.blue,
+                        ),
+                        child: Slider(
+                          value: selectedDays.toDouble(),
+                          min: 1,
+                          max: 7,
+                          divisions: 13,
+                          label: "$selectedDays days",
+                          onChanged: (value) {
+                            setState(() {
+                              selectedDays = value.toInt();
+                            });
+                          },
+                        ),
+                      ),
+                      Text(
+                        "$selectedDays ${selectedDays == 1 ? 'day' : 'days'} selected",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // 取消，关闭弹窗
-                },
-                child: Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    isBusy = true; // 设置为 Busy 状态
-                  });
-                  Navigator.of(context).pop(); // 确认并关闭弹窗
-                },
-                child: Text("Confirm"),
-              ),
-            ],
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("Cancel"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        isBusy = true;
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    child: Text("Confirm"),
+                  ),
+                ],
+              );
+            },
           );
         },
       );

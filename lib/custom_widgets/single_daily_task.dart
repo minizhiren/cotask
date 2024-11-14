@@ -96,7 +96,8 @@ class SingleDailyTask extends StatelessWidget {
                         return DragAndDropItem(
                           child: TaskContainer(
                             task: item,
-                            onTaskRemoved: () => taskProvider.removeTask(item),
+                            onTaskRemoved: () =>
+                                taskProvider.removeTask(item, true, context),
                           ),
                         );
                       } else if (item is Grocery) {

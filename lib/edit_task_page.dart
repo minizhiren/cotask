@@ -53,7 +53,8 @@ class _EditTaskPage extends State<EditTaskPage> {
   }
 
   void _deleteTask() {
-    Provider.of<TaskProvider>(context, listen: false).removeTask(widget.task);
+    Provider.of<TaskProvider>(context, listen: false)
+        .removeTask(widget.task, false, context);
     Provider.of<NotificationProvider>(context, listen: false).showDot();
     Navigator.pop(context); // Go back after deleting the task
   }
