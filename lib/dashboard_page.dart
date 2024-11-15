@@ -12,6 +12,11 @@ class DashBoardPage extends StatefulWidget {
 }
 
 class _DashBoardPageState extends State<DashBoardPage> {
+  final List<Color> barColors = [
+    Color.fromARGB(255, 122, 3, 151),
+    Color(0xFFFF9800),
+  ]; // List of colors
+
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
@@ -111,7 +116,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
                                   barRods: [
                                     BarChartRodData(
                                       y: user.credit,
-                                      colors: [const Color(0xFFE66473)],
+                                      colors: [barColors[index % barColors.length]],
                                       width: 16,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -132,7 +137,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
               Text(
                 '    Me',
                 style: TextStyle(
-                  color: Color.fromARGB(255, 122, 3, 151),
+                  color: Color.fromARGB(255, 0, 0, 0),//Color.fromARGB(255, 122, 3, 151),
                   fontSize: 18,
                   fontFamily: 'Quicksand',
                   fontWeight: FontWeight.w700,
@@ -142,7 +147,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
               Text(
                 'Lucas',
                 style: TextStyle(
-                  color: Color.fromARGB(255, 255, 153, 0),
+                  color: Color.fromARGB(255, 0, 0, 0),//Color.fromARGB(255, 255, 153, 0),
                   fontSize: 18,
                   fontFamily: 'Quicksand',
                   fontWeight: FontWeight.w700,
