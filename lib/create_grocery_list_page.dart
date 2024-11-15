@@ -243,7 +243,15 @@ class _GroceryListPageState extends State<GroceryListPage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: addNewTask,
+                  onPressed: () {
+                    // Add the new task logic here
+                    addNewTask();
+
+                    // Update NavigationProvider's index to 1
+                    final navigationProvider =
+                        Provider.of<NavigationProvider>(context, listen: false);
+                    navigationProvider.setCurrentIndex(0);
+                  },
                   style: ElevatedButton.styleFrom(
                     shape: const StadiumBorder(),
                     backgroundColor: const Color(0xFFFA7D8A),

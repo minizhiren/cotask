@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'providers/task_provider.dart';
+import 'providers/user_provider.dart';
 import 'package:cotask/custom_widgets/single_daily_task.dart';
 import 'package:cotask/custom_widgets/task.dart';
 
@@ -61,7 +62,7 @@ class _DailyTaskPage extends State<DailyTaskPage> {
 
   void _toggleBusyStatus() {
     if (isBusy) {
-      // Busy 状态下弹出确认对话框，询问是否返回 Available 状态
+      // Show a confirmation dialog when in Busy state, asking to switch to Available state
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -71,16 +72,20 @@ class _DailyTaskPage extends State<DailyTaskPage> {
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // 关闭弹窗
+                  Navigator.of(context).pop(); // Close dialog
                 },
                 child: Text("Cancel"),
               ),
               TextButton(
                 onPressed: () {
                   setState(() {
-                    isBusy = false; // 设置状态为 Available
+                    isBusy = false; // Set local state if needed
                   });
-                  Navigator.of(context).pop(); // 关闭弹窗
+
+                  Provider.of<UserProvider>(context, listen: false)
+                      .setUserStatus('Me', 'Active');
+
+                  Navigator.of(context).pop(); // Close dialog
                 },
                 child: Text("Confirm"),
               ),
@@ -89,19 +94,14 @@ class _DailyTaskPage extends State<DailyTaskPage> {
         },
       );
     } else {
-      // 当前为 Available 状态时，进入 Busy 状态的弹窗
-      int selectedDays = 1; // 默认1天
+      // When in Available state, show dialog to enter Busy state with a selected duration
+      int selectedDays = 1; // Default to 1 day
 
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          int selectedDays =
-              1; // Make sure this is defined outside the builder if you want to track it globally
-          bool isBusy =
-              false; // Also ensure this is defined in your widget state
-
           return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
+            builder: (BuildContext context, StateSetter setStateDialog) {
               return AlertDialog(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
@@ -132,10 +132,10 @@ class _DailyTaskPage extends State<DailyTaskPage> {
                           value: selectedDays.toDouble(),
                           min: 1,
                           max: 7,
-                          divisions: 13,
+                          divisions: 6,
                           label: "$selectedDays days",
                           onChanged: (value) {
-                            setState(() {
+                            setStateDialog(() {
                               selectedDays = value.toInt();
                             });
                           },
@@ -158,9 +158,14 @@ class _DailyTaskPage extends State<DailyTaskPage> {
                   TextButton(
                     onPressed: () {
                       setState(() {
-                        isBusy = true;
+                        isBusy = true; // Set local state if needed
                       });
-                      Navigator.of(context).pop();
+
+                      // Update 'Me' status to 'Inactive' in UserProvider
+                      Provider.of<UserProvider>(context, listen: false)
+                          .setUserStatus('Me', 'InActive');
+
+                      Navigator.of(context).pop(); // Close dialog
                     },
                     child: Text("Confirm"),
                   ),

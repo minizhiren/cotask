@@ -1,3 +1,4 @@
+import 'package:cotask/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 import 'package:provider/provider.dart';
@@ -10,11 +11,7 @@ import 'package:cotask/custom_widgets/grocery.dart';
 import 'package:cotask/custom_widgets/transfer.dart'; // 新增 TransferContainer
 
 class SingleDailyTask extends StatelessWidget {
-  final List<String> predefinedListNames = [
-    'Unassigned Task',
-    'Me',
-    'Lucas - Busy'
-  ];
+  final List<String> predefinedListNames = ['Unassigned Task', 'Me', 'Lucas'];
   final ScrollController _scrollController = ScrollController();
 
   SingleDailyTask({super.key});
@@ -80,13 +77,37 @@ class SingleDailyTask extends StatelessWidget {
           return DragAndDropList(
             header: Padding(
               padding: EdgeInsets.all(10.0),
-              child: Text(
-                listName,
-                style: TextStyle(
-                  color: Colors.orangeAccent,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Consumer<UserProvider>(
+                builder: (context, userProvider, child) {
+                  // Find the user by name in UserProvider
+                  final user = userProvider.findUserByName(listName);
+
+                  // Display name, append ' - busy' if user is inactive
+                  final displayName = user != null && user.status == 'InActive'
+                      ? '$listName - busy'
+                      : listName;
+
+                  // Determine text color based on listName
+                  Color textColor;
+                  if (listName == 'Unassigned Task') {
+                    textColor = Colors.grey;
+                  } else if (listName == 'Me') {
+                    textColor = Colors.purple;
+                  } else if (listName == 'Lucas') {
+                    textColor = Colors.orange;
+                  } else {
+                    textColor = Colors.orangeAccent; // Default color
+                  }
+
+                  return Text(
+                    displayName,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                },
               ),
             ),
             children: items.isNotEmpty
@@ -175,18 +196,26 @@ class SingleDailyTask extends StatelessWidget {
             var movedItem = groupedItems[sourceListName]![oldItemIndex];
 
             if (movedItem is Task || movedItem is Grocery) {
-              if (targetListName == 'Lucas - Busy') {
+              final userProvider =
+                  Provider.of<UserProvider>(context, listen: false);
+
+              // Retrieve the user by name and check their status
+              final user = userProvider.findUserByName(targetListName);
+
+              if (user != null && user.status == 'InActive') {
+                // Check if the user is busy
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text(""),
-                      content: Text("Lucas seems busy"),
+                      title: Text("User Busy"),
+                      content: Text("${user.name} seems busy"),
                       actions: [
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pop(); // 关闭弹窗
-                            // 继续执行转移操作
+                            Navigator.of(context).pop(); // Close dialog
+
+                            // Continue with the transfer operation
                             if (movedItem is Task) {
                               movedItem =
                                   movedItem.copyWith(ownerName: targetListName);
@@ -197,21 +226,21 @@ class SingleDailyTask extends StatelessWidget {
                               groceryProvider.updateGroceryList(movedItem);
                             }
                           },
-                          child: Text("yes"),
+                          child: Text("Yes"),
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pop(); // 关闭弹窗
-                            // 取消转移操作，不做任何更新
+                            Navigator.of(context).pop(); // Close dialog
+                            // Cancel the transfer, no updates are made
                           },
-                          child: Text("back"),
+                          child: Text("Back"),
                         ),
                       ],
                     );
                   },
                 );
               } else {
-                // 如果目标列表不是 'Lucas - Midterm'，直接执行转移操作
+                // Continue with the transfer without showing the dialog if the user is not busy
                 if (movedItem is Task) {
                   movedItem = movedItem.copyWith(ownerName: targetListName);
                   taskProvider.updateTask(movedItem);

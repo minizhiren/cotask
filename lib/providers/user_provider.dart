@@ -66,6 +66,12 @@ class UserProvider with ChangeNotifier {
     return userList.firstWhere((user) => user.name == name);
   }
 
+  void setUserStatus(String userName, String newStatus) {
+    final user = userList.firstWhere((user) => user.name == userName);
+    user.status = newStatus;
+    notifyListeners();
+  }
+
   // Add credit to a user
   void addCreditToUser(User user, int credit) {
     user.credit += credit;

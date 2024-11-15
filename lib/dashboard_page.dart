@@ -15,7 +15,8 @@ class _DashBoardPageState extends State<DashBoardPage> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    final users = userProvider.userList;
+// Exclude a user by unique ID
+    final users = userProvider.userList.where((user) => user.id != 0).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -52,73 +53,105 @@ class _DashBoardPageState extends State<DashBoardPage> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'User Credits',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 25,
-                fontFamily: 'Quicksand',
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: BarChart(
-                BarChartData(
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: users
-                          .map((user) => user.credit)
-                          .reduce((a, b) => a > b ? a : b) *
-                      1.2,
-                  barTouchData: BarTouchData(enabled: true),
-                  titlesData: FlTitlesData(
-                    leftTitles: SideTitles(
-                      showTitles: false, // Hide Y-axis labels
-                    ),
-                    bottomTitles: SideTitles(
-                      showTitles: false, // Hide X-axis labels
-                    ),
+      body: ListView(
+        physics: const BouncingScrollPhysics(),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'User Credits',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 25,
+                    fontFamily: 'Quicksand',
+                    fontWeight: FontWeight.w700,
                   ),
-                  gridData: FlGridData(
-                    show: true,
-                    drawHorizontalLine: true,
-                    horizontalInterval: 50,
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: Colors.grey.withOpacity(0.2),
-                        strokeWidth: 1,
-                      );
-                    },
-                  ),
-                  borderData: FlBorderData(show: false),
-                  barGroups: users
-                      .asMap()
-                      .map((index, user) => MapEntry(
-                            index,
-                            BarChartGroupData(
-                              x: index,
-                              barRods: [
-                                BarChartRodData(
-                                  y: user.credit,
-                                  colors: [const Color(0xFFE66473)],
-                                  width: 16,
-                                  borderRadius: BorderRadius.circular(8),
+                ),
+                const SizedBox(height: 20),
+                // Use SizedBox to limit the height of BarChart
+                SizedBox(
+                  height: 300, // Set a fixed height for the chart
+                  child: BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      maxY: users
+                              .map((user) => user.credit)
+                              .reduce((a, b) => a > b ? a : b) *
+                          1.2,
+                      barTouchData: BarTouchData(enabled: true),
+                      titlesData: FlTitlesData(
+                        leftTitles: SideTitles(
+                          showTitles: false, // Hide Y-axis labels
+                        ),
+                        bottomTitles: SideTitles(
+                          showTitles: false, // Hide X-axis labels
+                        ),
+                      ),
+                      gridData: FlGridData(
+                        show: true,
+                        drawHorizontalLine: true,
+                        horizontalInterval: 50,
+                        getDrawingHorizontalLine: (value) {
+                          return FlLine(
+                            color: Colors.grey.withOpacity(0.2),
+                            strokeWidth: 1,
+                          );
+                        },
+                      ),
+                      borderData: FlBorderData(show: false),
+                      barGroups: users
+                          .asMap()
+                          .map((index, user) => MapEntry(
+                                index,
+                                BarChartGroupData(
+                                  x: index,
+                                  barRods: [
+                                    BarChartRodData(
+                                      y: user.credit,
+                                      colors: [const Color(0xFFE66473)],
+                                      width: 16,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ))
-                      .values
-                      .toList(),
+                              ))
+                          .values
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(
+                '    Me',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 122, 3, 151),
+                  fontSize: 18,
+                  fontFamily: 'Quicksand',
+                  fontWeight: FontWeight.w700,
+                  height: 0,
                 ),
               ),
-            ),
-          ],
-        ),
+              Text(
+                'Lucas',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 255, 153, 0),
+                  fontSize: 18,
+                  fontFamily: 'Quicksand',
+                  fontWeight: FontWeight.w700,
+                  height: 0,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
