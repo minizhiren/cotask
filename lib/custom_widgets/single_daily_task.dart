@@ -83,7 +83,8 @@ class SingleDailyTask extends StatelessWidget {
                   final user = userProvider.findUserByName(listName);
 
                   // Display name, append ' - busy' if user is inactive
-                  final displayName = user != null && user.status == 'InActive'
+                  final displayName = user != null &&
+                          user.busyDays.contains(DateProvider().selectedDate)
                       ? '$listName - busy'
                       : listName;
 
@@ -92,9 +93,9 @@ class SingleDailyTask extends StatelessWidget {
                   if (listName == 'Unassigned Task') {
                     textColor = Colors.grey;
                   } else if (listName == 'Me') {
-                    textColor = Colors.purple;
+                    textColor = Color(0xFFF66372);
                   } else if (listName == 'Lucas') {
-                    textColor = Colors.orange;
+                    textColor = Color(0xFFF66372);
                   } else {
                     textColor = Colors.orangeAccent; // Default color
                   }
@@ -202,7 +203,9 @@ class SingleDailyTask extends StatelessWidget {
               // Retrieve the user by name and check their status
               final user = userProvider.findUserByName(targetListName);
 
-              if (user != null && user.status == 'InActive') {
+              if (user != null &&
+                  user.busyDays.contains(DateProvider().selectedDate) &&
+                  user.name != 'Me') {
                 // Check if the user is busy
                 showDialog(
                   context: context,

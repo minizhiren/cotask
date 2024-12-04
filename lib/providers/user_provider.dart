@@ -4,27 +4,33 @@ class User {
   int id;
   String name;
   double credit;
-  String status;
+  Set<DateTime> busyDays; // 改为 busyDays，存储忙碌的日期
 
   User({
     required this.id,
     required this.name,
     required this.credit,
-    required this.status,
+    required this.busyDays,
   });
 
-  // Method to toggle user status
-  void toggleStatus() {
-    status = (status == 'Active') ? 'Inactive' : 'Active';
+  // Method to toggle a date in busyDays
+  void toggleBusyDay(DateTime date) {
+    if (busyDays.contains(date)) {
+      busyDays.remove(date);
+    } else {
+      busyDays.add(date);
+    }
   }
 }
 
 class UserProvider with ChangeNotifier {
   // Private list to store users
   final List<User> _userList = [
-    User(id: 0, name: 'Unassigned Task', credit: 100.0, status: 'Active'),
-    User(id: 1, name: 'Me', credit: 200.0, status: 'Active'),
-    User(id: 2, name: 'Lucas', credit: 100.0, status: 'InActive'),
+    User(id: 0, name: 'Unassigned Task', credit: 100.0, busyDays: {}),
+    User(id: 1, name: 'Me', credit: 200.0, busyDays: {DateTime(2024, 12, 5)}),
+    User(id: 2, name: 'Lucas', credit: 100.0, busyDays: {
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+    }),
   ];
 
   // Getter to access the user list
@@ -42,6 +48,16 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateUserBusyDates(String userName, Set<DateTime> newBusyDates) {
+    final user = userList.firstWhere(
+      (user) => user.name == userName,
+    );
+    if (user != null) {
+      user.busyDays = newBusyDates;
+      notifyListeners(); // Notify listeners of the update
+    }
+  }
+
   // Update a user by ID
   void updateUser(User updatedUser) {
     final index = _userList.indexWhere((user) => user.id == updatedUser.id);
@@ -51,24 +67,26 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  // Get a user by ID
-
-  // Toggle the status of a user by ID
-  void toggleUserStatus(int id) {
+  // Toggle a busy day for a user by ID
+  void toggleUserBusyDay(int id, DateTime date) {
     final index = _userList.indexWhere((user) => user.id == id);
     if (index != -1) {
-      _userList[index].toggleStatus();
+      _userList[index].toggleBusyDay(date);
       notifyListeners();
     }
   }
 
+  // Get a user by name
   User? findUserByName(String name) {
-    return userList.firstWhere((user) => user.name == name);
+    return userList.firstWhere(
+      (user) => user.name == name,
+    );
   }
 
-  void setUserStatus(String userName, String newStatus) {
+  // Set busy days for a user by name
+  void setUserBusyDays(String userName, Set<DateTime> newBusyDays) {
     final user = userList.firstWhere((user) => user.name == userName);
-    user.status = newStatus;
+    user.busyDays = newBusyDays;
     notifyListeners();
   }
 

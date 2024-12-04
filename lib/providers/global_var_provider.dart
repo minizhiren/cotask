@@ -12,7 +12,8 @@ class NavigationProvider with ChangeNotifier {
 }
 
 class DateProvider with ChangeNotifier {
-  DateTime _selectedDate = DateTime.now();
+  DateTime _selectedDate =
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
   DateTime get selectedDate => _selectedDate;
 
