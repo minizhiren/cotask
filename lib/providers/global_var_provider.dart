@@ -1,3 +1,4 @@
+import 'package:cotask/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 
 class NavigationProvider with ChangeNotifier {
@@ -20,6 +21,9 @@ class DateProvider with ChangeNotifier {
   void updateSelectedDate(DateTime newDate) {
     _selectedDate = newDate;
     notifyListeners();
+    print('-----update');
+    print(UserProvider().findUserByName('Me')!.busyDays);
+    print(_selectedDate);
   }
 }
 

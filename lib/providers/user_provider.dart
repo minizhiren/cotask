@@ -54,6 +54,11 @@ class UserProvider with ChangeNotifier {
     );
     if (user != null) {
       user.busyDays = newBusyDates;
+      print('after update funciton');
+      print(user.name);
+      print(user.busyDays);
+      print(newBusyDates);
+
       notifyListeners(); // Notify listeners of the update
     }
   }
