@@ -209,7 +209,7 @@ class SingleDailyTask extends StatelessWidget {
               final user = userProvider.findUserByName(targetListName);
 
               if (user != null &&
-                  user.busyDays.contains(DateProvider().selectedDate) &&
+                  user.busyDays.contains(selectedDate) &&
                   user.name != 'Me') {
                 // Check if the user is busy
                 showDialog(
