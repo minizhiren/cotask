@@ -116,7 +116,9 @@ class _DashBoardPageState extends State<DashBoardPage> {
                                   barRods: [
                                     BarChartRodData(
                                       y: user.credit,
-                                      colors: [barColors[index % barColors.length]],
+                                      colors: [
+                                        barColors[index % barColors.length]
+                                      ],
                                       width: 16,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
@@ -137,7 +139,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
               Text(
                 '    Me',
                 style: TextStyle(
-                  color: Color.fromARGB(255, 0, 0, 0),//Color.fromARGB(255, 122, 3, 151),
+                  color: Color(0xFFF66372), //Color.fromARGB(255, 122, 3, 151),
                   fontSize: 18,
                   fontFamily: 'Quicksand',
                   fontWeight: FontWeight.w700,
@@ -147,7 +149,7 @@ class _DashBoardPageState extends State<DashBoardPage> {
               Text(
                 'Lucas',
                 style: TextStyle(
-                  color: Color.fromARGB(255, 0, 0, 0),//Color.fromARGB(255, 255, 153, 0),
+                  color: Color(0xFFF66372), //Color.fromARGB(255, 255, 153, 0),
                   fontSize: 18,
                   fontFamily: 'Quicksand',
                   fontWeight: FontWeight.w700,
