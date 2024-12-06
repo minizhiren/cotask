@@ -55,33 +55,142 @@ class TransferContainer extends StatelessWidget {
     required this.onCompleted,
   });
 
-  void _showPendingConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Confirmation"),
-          content:
-              const Text("Do you want to proceed with this pending transfer?"),
-          actions: [
-            TextButton(
-              child: const Text("Cancel"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text("Confirm"),
-              onPressed: () {
-                Navigator.of(context).pop();
-                onCompleted();
-              },
+  // void _showPendingConfirmationDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text("Confirmation"),
+  //         content:
+  //             const Text("Do you want to proceed with this pending transfer?"),
+  //         actions: [
+  //           TextButton(
+  //             child: const Text("Cancel"),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //           TextButton(
+  //             child: const Text("Confirm"),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               onCompleted();
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+  void _showPendingConfirmationDialog(BuildContext context, VoidCallback onCompleted) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2), // Shadow color
+              offset: Offset(0, 4), // Shadow position
+              blurRadius: 12, // Shadow blur
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+        child: AlertDialog(
+          backgroundColor: Colors.white, // Set background color to white
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(width: 8),
+              Text(
+                'Confirmation',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  fontSize: 20,
+                ),
+              ),
+            ],
+          ),
+          content: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              'Do you want to proceed with this pending transfer?',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+          ),
+          actionsPadding: EdgeInsets.only(bottom: 12, right: 8),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: 100, // Set uniform width for both buttons
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.grey[200],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.red[400],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 100, // Set uniform width for both buttons
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.green[400],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      onCompleted();
+                    },
+                    child: Text(
+                      'Confirm',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        letterSpacing: 1.2,
+                        shadows: [
+                          Shadow(
+                            offset: Offset(0, 1),
+                            blurRadius: 1,
+                            color: Colors.black26,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +269,7 @@ class TransferContainer extends StatelessWidget {
                 ? GestureDetector(
                     onTap: () {
                       if (transfer.status == TransferStatus.pending) {
-                        _showPendingConfirmationDialog(context);
+                        _showPendingConfirmationDialog(context, onCompleted);
                       } else {
                         onCompleted(); // Directly mark as complete if not pending
                       }
