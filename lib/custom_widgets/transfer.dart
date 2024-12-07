@@ -60,18 +60,54 @@ class TransferContainer extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Confirmation"),
-          content:
-              const Text("Do you want to proceed with this pending transfer?"),
+          title: const Text("Confirmation",textAlign: TextAlign.center,),
+          backgroundColor: Colors.white,
+          
+          content: const Text(
+          "Do you want to proceed with this pending transfer?",
+          textAlign: TextAlign.center,
+        ),
+              
+              
           actions: [
             TextButton(
-              child: const Text("Cancel"),
+              // child: const Text("Cancel"),
+              child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.red[400],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text("Confirm"),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.green[400],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            ),
+              child: Text(
+                      'Confirm',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        letterSpacing: 1.2,
+                        shadows: [
+                          Shadow(
+                            offset: Offset(0, 1),
+                            blurRadius: 1,
+                            color: Colors.black26,
+                          ),
+                        ],
+                      ),
+                    ),
               onPressed: () {
                 Navigator.of(context).pop();
                 onCompleted();
@@ -82,6 +118,7 @@ class TransferContainer extends StatelessWidget {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

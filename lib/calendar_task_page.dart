@@ -52,33 +52,35 @@ class _CalendarTaskPageState extends State<CalendarTaskPage> {
 
     // Generate dots for each task on a given day
     for (var task in tasks) {
-      DateTime taskDate = task.startDate;
+      if (task.ownerName != 'Lucas') {
+        DateTime taskDate = task.startDate;
 
-      while (!taskDate.isAfter(task.endDate)) {
-        if (taskDate.month == currentMonth && taskDate.year == currentYear) {
-          final weekdayEnum = Weekday.values[
-              taskDate.weekday - 1]; // `DateTime.weekday` 是从 1（周一）到 7（周日）
+        while (!taskDate.isAfter(task.endDate)) {
+          if (taskDate.month == currentMonth && taskDate.year == currentYear) {
+            final weekdayEnum = Weekday.values[
+                taskDate.weekday - 1]; // `DateTime.weekday` 是从 1（周一）到 7（周日）
 
-          if (task.selectedDays.isEmpty ||
-              task.selectedDays.contains(weekdayEnum)) {
-            int day = taskDate.day;
-            taskDotsByDay.putIfAbsent(day, () => []);
+            if (task.selectedDays.isEmpty ||
+                task.selectedDays.contains(weekdayEnum)) {
+              int day = taskDate.day;
+              taskDotsByDay.putIfAbsent(day, () => []);
 
-            // Assign color based on person assigned to the task
-            Color indicatorColor;
-            if (task.ownerName == 'Me') {
-              indicatorColor = Colors.purple;
-            } else if (task.ownerName == 'Lucas') {
-              indicatorColor = Colors.orange;
-            } else {
-              indicatorColor = Colors.grey;
+              // Assign color based on person assigned to the task
+              Color indicatorColor;
+              if (task.ownerName == 'Me') {
+                indicatorColor = Colors.purple;
+              } else if (task.ownerName == 'Lucas') {
+                indicatorColor = Colors.orange;
+              } else {
+                indicatorColor = Colors.grey;
+              }
+
+              // Add a dot for each task on the same day
+              taskDotsByDay[day]!.add(indicatorColor);  
             }
-
-            // Add a dot for each task on the same day
-            taskDotsByDay[day]!.add(indicatorColor);
           }
+          taskDate = taskDate.add(Duration(days: 1));
         }
-        taskDate = taskDate.add(Duration(days: 1));
       }
     }
 

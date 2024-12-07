@@ -13,14 +13,14 @@ class DashBoardPage extends StatefulWidget {
 
 class _DashBoardPageState extends State<DashBoardPage> {
   final List<Color> barColors = [
-    Color.fromARGB(255, 122, 3, 151),
-    Color(0xFFFF9800),
-  ]; // List of colors
+    Color(0xFFF66372),
+    Color(0xFFF66372),
+  ]; // Both bars set to the same color
 
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-// Exclude a user by unique ID
+    // Exclude a user by unique ID
     final users = userProvider.userList.where((user) => user.id != 0).toList();
 
     return Scaffold(
@@ -136,24 +136,52 @@ class _DashBoardPageState extends State<DashBoardPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(
-                '    Me',
-                style: TextStyle(
-                  color: Color(0xFFF66372), //Color.fromARGB(255, 122, 3, 151),
-                  fontSize: 18,
-                  fontFamily: 'Quicksand',
-                  fontWeight: FontWeight.w700,
-                  height: 0,
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: 22.0), // Add 2px padding here for Me
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: AssetImage('assets/me_prof.png'),
+                    ),
+                    const SizedBox(
+                        height: 10), // Spacing between name and image
+                    const Text(
+                      'Me',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 18,
+                        fontFamily: 'Quicksand',
+                        fontWeight: FontWeight.w700,
+                        height: 0,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Text(
-                'Lucas',
-                style: TextStyle(
-                  color: Color(0xFFF66372), //Color.fromARGB(255, 255, 153, 0),
-                  fontSize: 18,
-                  fontFamily: 'Quicksand',
-                  fontWeight: FontWeight.w700,
-                  height: 0,
+              Padding(
+                padding: const EdgeInsets.only(
+                    right: 15.0), // Add 15px padding here for Lucas
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: AssetImage('assets/lucas_prof.png'),
+                    ),
+                    const SizedBox(
+                        height: 10), // Spacing between name and image
+                    const Text(
+                      'Lucas',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 18,
+                        fontFamily: 'Quicksand',
+                        fontWeight: FontWeight.w700,
+                        height: 0,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
