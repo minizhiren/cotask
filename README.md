@@ -35,10 +35,3 @@ Below are demo GIFs showcasing key functionalities of the system.
 ![Task Status](demo/status4.gif)
 
 ---
-
-## 🚀 How to Run
-```bash
-git clone https://github.com/minizhiren/cotask.git
-cd cotask
-npm install  # or yarn install
-npm start
