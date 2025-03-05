@@ -1,16 +1,44 @@
-# cotask
+# 📝 Cotask - Task Management Demo
 
-A new Flutter project.
+Welcome to **Cotask**, a task management system!  
+Below are demo GIFs showcasing key functionalities of the system.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🎬 Demo Features
 
-A few resources to get you started if this is your first Flutter project:
+### ✅ Create a Task
+![Create Task](demo/create_task1.gif)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 🛒 Create Grocery List
+![Create Grocery List](demo/create_grocsery11.gif)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 📅 Create Multiple Tasks
+![Create Multiple Tasks](demo/create_task10.gif)
+
+### 📊 Dashboard Overview
+![Dashboard](demo/dashboard2.gif)
+
+### 🖊️ Edit Grocery List
+![Edit Grocery List](demo/edit_grocsery7.gif)
+
+### ⚠️ Popup Warning
+![Popup Warning](demo/popup_warning6.gif)
+
+### 💵 Split Bill
+![Split Bill](demo/split_bill8.gif)
+
+### 📤 Upload Receipt
+![Upload Receipt](demo/upload_recipit9.gif)
+
+### 🔄 Task Status Change
+![Task Status](demo/status4.gif)
+
+---
+
+## 🚀 How to Run
+```bash
+git clone https://github.com/minizhiren/cotask.git
+cd cotask
+npm install  # or yarn install
+npm start
