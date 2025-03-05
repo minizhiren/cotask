@@ -8,10 +8,10 @@ Below are demo GIFs showcasing key functionalities of the system.
 ## 🎬 Demo Features
 
 ### ✅ Create a Task
-![Create Task](demo/create_task1.gif)
+![Create Task](demo/createTask1.gif)
 
 ### 🛒 Create Grocery List
-![Create Grocery List](demo/create grocsery11.gif)
+![Create Grocery List](demo/create_grocsery11.gif)
 
 ### 📅 Create Multiple Tasks
 ![Create Multiple Tasks](demo/create_task10.gif)
